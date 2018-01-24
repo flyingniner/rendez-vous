@@ -5,14 +5,17 @@
  */
 package Model;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.application.Application;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 /**
@@ -26,6 +29,9 @@ public class BussApptMgntSyst extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
+        
+        
+        
         Locale locale = Locale.getDefault();
         //Locale locale = new Locale("es","VE");
 //        
@@ -46,6 +52,8 @@ public class BussApptMgntSyst extends Application
         
         stage.setScene(scene);
         stage.show();
+        
+        
     }
 
     /**

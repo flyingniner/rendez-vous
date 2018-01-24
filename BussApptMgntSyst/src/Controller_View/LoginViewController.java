@@ -6,20 +6,14 @@
 package Controller_View;
 
 import Model.UserClass;
-import java.io.PrintWriter;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javax.sql.DataSource;
 
 /**
  * FXML Controller class
@@ -79,13 +73,13 @@ public class LoginViewController implements Initializable
 
     private void login(String userName, PasswordField password) throws IllegalArgumentException
     {
-        if (verifyCredentials(userName))
+        String deleteme = password.getText();
+        if (UserClass.verifyUser(userName,password.getText()))
         {
             //todo
             //set global variable to hold user info
             //load RootView and MainView
             //close LoginView
-            
             lblError.setText("you did it!");
         }
         else
@@ -94,25 +88,5 @@ public class LoginViewController implements Initializable
             txtUser.setText("");
             txtPass.setText("");
         }
-    }
-
-    private boolean verifyCredentials(String userName)
-    {
-        //todo                
-        String queryString = "SELECT 1 userName, password " +
-                "FROM user WHERE userName = '" + userName +"'";
-        
-        //execute query to get user creds
-        
-        boolean result;
-        if(true) //query string returns a result
-        {
-            UserClass requestingUser = new UserClass("0",userName,txtPass.getText());
-            UserClass sqlUser = new UserClass("0","test","test");
-
-            result = (requestingUser.equals(sqlUser)) ? true:false;          
-        }
-        return result;        
-    }
-    
+    }    
 }
