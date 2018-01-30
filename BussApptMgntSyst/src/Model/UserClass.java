@@ -16,14 +16,16 @@ public class UserClass
 {
     private int userID;
     private String userName;
-    private String userPassword;
+    private int userPassword;
+    
+    private static final UserClass instance = new UserClass();
+    
+    private UserClass() {};
     
     
-    public UserClass(String userID, String userName, String password)
+    public static UserClass getInstance()
     {
-        setUserID(userID);
-        setUserName(userName);
-        setUserPassword(password);
+        return instance;
     }
     
     private void setUserID(String userID)
@@ -31,12 +33,12 @@ public class UserClass
         this.userID = Integer.parseInt(userID);
     }
     
-    public void setUserName(String userName)
+    private void setUserName(String userName)
     {
         this.userName = userName;
     }
     
-    private void setUserPassword(String userPassword)
+    private void setUserPassword(int userPassword)
     {
         this.userPassword = userPassword;
     }
@@ -51,12 +53,19 @@ public class UserClass
         return this.userName;
     }
     
-    private String getUserPassword()
+    private int getUserPassword()
     {
         return this.userPassword;
     }
     
-    public static boolean verifyUser(String userName, String password) //throws SQLException
+    /**
+     * Checks the database for a matching user. Returns a boolean of the result
+     * @param user
+     * @param userName
+     * @param password
+     * @return TRUE if a match was found and the password matched, otherwise FALSE
+     */
+    public static boolean verifyUser(UserClass user, String userName, int password) //throws SQLException
     {
         boolean result = false;
         
@@ -67,43 +76,34 @@ public class UserClass
         {
             SqlHelperClass sql = new SqlHelperClass();
             rs = sql.executeQuery(queryString);
-            
+                       
             if(rs.next()) //query string returns a result
             {
-                UserClass sqlUser = new UserClass(rs.getString("userId"),
-                        rs.getString("userName"),
-                        rs.getString("password"));
-
-                UserClass requestingUser = new UserClass("0",userName,password);
-
-                result = (requestingUser.equals(sqlUser)) ? true:false; 
+                getInstance().setUserName(userName);
+                result = (rs.getString("password").hashCode() == password) ? true:false;
+                
+                if (result)
+                {
+                    UserClass.getInstance().setUserID(rs.getString("userId"));
+                    UserClass.getInstance().setUserPassword(password);
+                }
                 rs.close();
             }
             
         }
         catch (SQLException e)
         {
-            System.err.println("expection at UserClass line 85");
+            //System.err.println("expection at UserClass line 85");
             System.err.println(e.getMessage());            
         }
 
         return result;
     }
-    
-    @Override
-    public boolean equals(Object obj)
-    {
-        if(!(obj instanceof UserClass)) 
-            return false;       
-        
-        UserClass newUser = (UserClass) obj;        
-        return this.userPassword.equals(newUser.userPassword);                       
-    }
-    
+
     @Override
     public String toString()
-    {
-        //todo
-        return this.userName;
+    {   
+        return "[userID: " + getInstance().getUserID() + ", userName: " + 
+                getInstance().getUserName() + "]";
     }
 }

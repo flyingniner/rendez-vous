@@ -5,13 +5,18 @@
  */
 package Controller_View;
 
+import Model.BussApptMgntSyst;
 import java.net.URL;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableView;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 /**
  * FXML Controller class
@@ -20,6 +25,12 @@ import javafx.scene.control.TableView;
  */
 public class MainViewController implements Initializable
 {
+    Stage stage;    
+    Locale locale = BussApptMgntSyst.locale;
+    SceneManager sceneMgr = new SceneManager();
+    AnchorPane root = BussApptMgntSyst.root;
+    AnchorPane child;
+    
     @FXML private Button btnCustomers;
     @FXML private Button btnSchedules;
     @FXML private Button btnReports;
@@ -28,6 +39,7 @@ public class MainViewController implements Initializable
     @FXML private TableView dtCalender;
     @FXML private RadioButton radByMonth;
     @FXML private RadioButton radByWeek;
+    @FXML private ToggleGroup group;
 
     /**
      * Initializes the controller class.
@@ -35,7 +47,25 @@ public class MainViewController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
-        // TODO
+        
+        //FXMLLoader childScene = new FXMLLoader(getClass().getResource(FxmlView.MAIN.getFxmlFile()), rb);    
+        //child = LoginViewController.getChild();
+        
+        
+        btnCustomers.setOnAction((event) ->
+        {           
+           sceneMgr.displayScene(root, child, "Customer");
+        });
+        
+        btnSchedules.setOnAction((event) ->
+        {
+            sceneMgr.displayScene(root, child, "Schedule");
+        });
+        
+        btnReports.setOnAction((event) ->
+        {
+            sceneMgr.displayScene(root, child, "Reports");
+        });
     }    
     
 }

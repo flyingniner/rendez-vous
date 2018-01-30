@@ -13,7 +13,10 @@
 <?import javafx.scene.layout.RowConstraints?>
 
 
-<AnchorPane id="AnchorPane" prefHeight="252.0" prefWidth="400.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.141" fx:controller="Controller_View.LoginViewController">
+<AnchorPane id="AnchorPane" prefHeight="252.0" prefWidth="400.0"
+            layoutX="440" layoutY="274"
+            xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.141" 
+            fx:controller="Controller_View.LoginViewController">
    <children>
       <FlowPane prefHeight="259.0" prefWidth="400.0">
          <children>
