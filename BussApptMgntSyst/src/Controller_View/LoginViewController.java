@@ -6,19 +6,15 @@
 package Controller_View;
 
 import Model.BussApptMgntSyst;
-import Model.FxmlView;
 import Model.UserClass;
 //import Model.WindowEnum;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import javafx.event.ActionEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -40,6 +36,7 @@ public class LoginViewController implements Initializable
     AnchorPane root = BussApptMgntSyst.root;
     public AnchorPane child = BussApptMgntSyst.child;
     public static AnchorPane loginView;
+    private static Logger logger = Logger.getLogger("Controller_View");
     
     @FXML private Label lblUser;
     @FXML private Label lblPass;
@@ -58,6 +55,7 @@ public class LoginViewController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
+        logger.setParent(BussApptMgntSyst.logger);
         resource = rb;
     
         //set text to appropriate langauge
@@ -127,9 +125,8 @@ public class LoginViewController implements Initializable
     
         if (UserClass.verifyUser(user, userName, password.getText().hashCode()))                    
         {
-            //TODO: add logger
-            sceneMgr.displayScene(root, child, "Main");
-            
+            logger.log(Level.INFO, "Login Successful: " + user.toString());
+            sceneMgr.displayScene(root, child, "Main");           
         }                    
         else
         {
@@ -137,6 +134,7 @@ public class LoginViewController implements Initializable
             txtUser.setText("");
             txtUser.requestFocus();
             txtPass.setText("");
+            logger.log(Level.WARNING, "Unsuccessful login attempt: " + user.toString());
         }
     }  
 }

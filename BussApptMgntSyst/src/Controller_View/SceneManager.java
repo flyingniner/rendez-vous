@@ -53,7 +53,7 @@ public class SceneManager
             
             if (root != null)
             {    
-                root.getChildren().stream().forEach(System.out::println);      
+                //root.getChildren().stream().forEach(System.out::println);      
                 root.getChildren().remove(1);
             }
             else
@@ -68,7 +68,7 @@ public class SceneManager
             
             root.getChildren().addAll(child);
             
-            root.getChildren().stream().forEach(System.out::println);      
+//            root.getChildren().stream().forEach(System.out::println);      
             Scene scene = root.getScene();
                   
             stage = (Stage) root.getScene().getWindow();

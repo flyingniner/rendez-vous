@@ -64,7 +64,7 @@ public class SqlHelperClass
         {        
             PreparedStatement stmt = conn.prepareStatement(queryString);
             ResultSet rs = stmt.executeQuery();
-        
+            
             return rs;
         }  
         catch (SQLException e)

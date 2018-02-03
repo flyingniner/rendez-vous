@@ -33,14 +33,12 @@ import java.util.logging.*;
  */
 public class RootViewController implements Initializable
 {    
-
     Stage stage;    
     Locale locale = BussApptMgntSyst.locale;
     SceneManager sceneMgr = new SceneManager();
     AnchorPane root = BussApptMgntSyst.root;
     AnchorPane child;
-    
-    
+        
     @FXML private Hyperlink hlinkSignOut;
     @FXML private Label dtNow;
     Logger logger = Logger.getLogger("Controller_View.RootViewController");
@@ -48,33 +46,26 @@ public class RootViewController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb) 
     {
+        logger.setParent(BussApptMgntSyst.logger);
         hlinkSignOut.setOnAction((event) -> 
         {
-            Logger logger = Logger.getLogger("Controller_View.RootViewController");
-            
             ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
             ButtonType no = new ButtonType("No", ButtonBar.ButtonData.NO);
             
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setHeaderText("Signout?");
             alert.setContentText("Are you sure want to sign out?");
-            //alert.getButtonTypes().addAll(yes, no);
+            //alert.getButtonTypes().addAll(yes, no);                       
+           // Optional<ButtonType> response = alert.showAndWait();
             
-            Optional<ButtonType> response = alert.showAndWait();
-            if (response.get().getButtonData()==ButtonBar.ButtonData.OK_DONE)
-            {
-                //TODO: add logger
-                //TODO: get user from appplciation thread
-                UserClass user = UserClass.getInstance();
-                System.out.println(user.toString() + " has logged out!");
-                System.exit(0);
-                
-                
-            }
-            else
-                alert.close();
-            
-            //throw new UnsupportedOperationException("Not supported yet."); 
+            alert.showAndWait()
+                .filter(response -> response == ButtonType.OK)
+                .ifPresent(x -> 
+                {                        
+                    logger.log(Level.INFO, "Logout Successful: " + 
+                            UserClass.getInstance());
+                    System.exit(0);
+                });
         });
         
         dtNow.setText(getCurrentDate());

@@ -31,7 +31,7 @@
                <GridPane.margin>
                   <Insets left="10.0" right="200.0" />
                </GridPane.margin></TextField>
-            <TableView prefHeight="583.0" prefWidth="478.0" GridPane.rowIndex="1">
+            <TableView fx:id="tblCustomers" prefHeight="583.0" prefWidth="478.0" GridPane.rowIndex="1">
               <columns>
                 <TableColumn fx:id="colCustId" prefWidth="55.0" text="Cust Id" />
                 <TableColumn fx:id="colCustName" prefWidth="98.0" text="Cust Name" />
@@ -99,17 +99,17 @@
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin></Label>
-                  <Label text="State" GridPane.columnIndex="2" GridPane.rowIndex="4">
+                <!--  <Label text="State" GridPane.columnIndex="2" GridPane.rowIndex="4">
                      <GridPane.margin>
                         <Insets left="10.0" />
-                     </GridPane.margin></Label>
+                     </GridPane.margin></Label> -->
                   <TextField fx:id="txtCustId" GridPane.columnIndex="1" GridPane.columnSpan="2" />
                   <TextField fx:id="txtCustName" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="1" />
                   <TextField fx:id="txtAddress1" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="2" />
                   <TextField fx:id="txtAddress2" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3" />
                   <TextField fx:id="txtCity" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  <TextField fx:id="txtState" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                  <TextField fx:id="txtPostal" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                  <TextField fx:id="txtPostal" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                <!--  <TextField fx:id="txtPostal" GridPane.columnIndex="3" GridPane.rowIndex="4" /> -->
                   <TextField fx:id="txtCountry" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6" />
                   <TextField fx:id="txtPhone" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="7" />
                   <Label fx:id="lblCustSince" GridPane.columnIndex="1" GridPane.rowIndex="8" />
