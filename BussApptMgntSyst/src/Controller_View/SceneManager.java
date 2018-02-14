@@ -10,7 +10,10 @@ import Model.FxmlView;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
@@ -23,6 +26,8 @@ public class SceneManager
 {
     Stage stage;    
     Locale locale = BussApptMgntSyst.locale;
+    
+
     
     public void displayScene(AnchorPane root, AnchorPane child, String screenName) 
     {
@@ -70,11 +75,13 @@ public class SceneManager
             
 //            root.getChildren().stream().forEach(System.out::println);      
             Scene scene = root.getScene();
-                  
+            
+            
             stage = (Stage) root.getScene().getWindow();
 //         
             stage.setScene(scene);
             stage.show();
+            //BussApptMgntSyst.cursor.set(Cursor.DEFAULT);
         }
 
         catch (IOException e)

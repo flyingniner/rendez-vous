@@ -57,5 +57,16 @@ public class ScheduleViewController implements Initializable
     {
         btnClose.setOnAction((event) -> sceneMgr.displayScene(root, child, "Main"));    
     }
+    
+    private void handleSaveButton()
+    {}
+    
+    private void handleCloseButton()
+    {}
+    
+    private void handleDeleteButton()
+    {}
+    
+    
 
 }

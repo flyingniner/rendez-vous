@@ -24,13 +24,17 @@ public class SqlHelperClass
     private String url = "jdbc:mysql://52.206.157.109/" + dbName;
     private String userName = "U03xmi";
     private String password = "53688113371";
-    private Connection conn = null;
+    private static Connection conn = null;
     
     public SqlHelperClass() //throws SQLException
     {
         //establishSqlConnenction();
     }
     
+    public static Connection getConnection()
+    {
+        return conn;
+    }
     
     private void establishSqlConnenction()
     {
@@ -57,9 +61,7 @@ public class SqlHelperClass
     public ResultSet executeQuery(String queryString) 
     {
         establishSqlConnenction();
-        
-        
-            
+
         try 
         {        
             PreparedStatement stmt = conn.prepareStatement(queryString);
@@ -73,6 +75,36 @@ public class SqlHelperClass
             return null;
         }        
     }
+    
+    public ResultSet executeQuery(PreparedStatement stmt)
+    {
+        ResultSet rs = null;
+        try
+        {
+            rs = stmt.executeQuery();            
+        }
+        
+        catch (SQLException e)
+        {
+            System.err.println(e.getMessage());        
+        }
+        return rs;
+    }
+    
+    public int executeUpdateQuery(PreparedStatement stmt)
+    {        
+        try
+        {
+            return stmt.executeUpdate();
+            
+        }
+        catch (SQLException e)
+        {
+            System.err.println(e.getMessage());
+            return 0;
+        }                 
+    }
+    
     
     
 //    PreparedStatement stmt = conn.prepareStatement("SELECT * FROM user WHERE userName = ?");

@@ -15,6 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Cursor;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -68,9 +69,8 @@ public class LoginViewController implements Initializable
         //setup event handlers
         btnLogin.setOnAction((event) ->                
         {   
+            
             login(txtUser.getText(), txtPass);
-//            login(txtUser.textProperty().get(),txtPass, event);
-            //closeWindow(event);
         });
         
         btnCancel.setOnAction((event) ->
@@ -120,13 +120,18 @@ public class LoginViewController implements Initializable
 
     private void login(String userName, PasswordField password) throws IllegalArgumentException
     {
+        //BussApptMgntSyst.cursor.set(Cursor.WAIT);
         UserClass user = UserClass.getInstance();
+        
         //user.setUserName(userName);
-    
+        
         if (UserClass.verifyUser(user, userName, password.getText().hashCode()))                    
         {
+            
             logger.log(Level.INFO, "Login Successful: " + user.toString());
-            sceneMgr.displayScene(root, child, "Main");           
+            
+            sceneMgr.displayScene(root, child, "Main");   
+            
         }                    
         else
         {
