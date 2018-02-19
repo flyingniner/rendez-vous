@@ -111,7 +111,12 @@ public class CustomerViewController implements Initializable
         hLinkAddCity.setText(resouce.getString("addCityCountry"));
         lblCustSince.setText(resouce.getString("custSince"));
         chkActive.setText(resouce.getString("active"));
-        cmbCity.setPromptText(resouce.getString("select"));        
+        cmbCity.setPromptText(resouce.getString("select")); 
+        colCity.setText(resouce.getString("city"));
+        colCountry.setText(resouce.getString("country"));
+        colCustId.setText(resouce.getString("custId"));
+        colCustName.setText(resouce.getString("custName"));
+        
         
         
         //set form element behaviours
