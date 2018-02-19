@@ -44,6 +44,7 @@ public class ScheduleViewController implements Initializable
     SceneManager sceneMgr = new SceneManager();
     AnchorPane root = BussApptMgntSyst.root;
     AnchorPane child;
+    ResourceBundle resource;
     
     @FXML private Label lblTitle;
     @FXML private Label lblFromDate;
@@ -51,6 +52,7 @@ public class ScheduleViewController implements Initializable
     @FXML private Label lblCustomer;
     @FXML private Label lblStartTime;
     @FXML private Label lblEndTime;
+    @FXML private Label lblNotes;
     @FXML private TextField txtTitle;
     @FXML private DatePicker dtFromDate;
     @FXML private DatePicker dtToDate;
@@ -75,6 +77,23 @@ public class ScheduleViewController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
+        resource = rb;
+        lblTitle.setText(resource.getString("title"));
+        lblFromDate.setText(resource.getString("startDate"));
+        lblToDate.setText(resource.getString("endDate"));
+        lblCustomer.setText(resource.getString("customer"));
+        lblStartTime.setText(resource.getString("startTime"));
+        lblEndTime.setText(resource.getString("endTime"));
+        btnSave.setText(resource.getString("save"));
+        lblNotes.setText(resource.getString("notes"));
+        btnDelete.setText(resource.getString("delete"));
+        btnClose.setText(resource.getString("close"));
+        colStartDate.setText(resource.getString("start"));
+        colEndDate.setText(resource.getString("end"));
+        colTitle.setText(resource.getString("title"));
+        colCustomerName.setText(resource.getString("customer"));
+        
+        
         loadCustomers();
         loadTimeFields();
         loadAppointmentTable();
