@@ -270,6 +270,13 @@ public class Customer //extends Address
         return this.getCustID() + this.getCustName() + this.getCity() + this.getCountry();
     }
     
-    
+    public static int getCustomerId(String customerName)
+    {
+       Customer cust = BussApptMgntSyst.customers.stream()
+                .filter(c -> customerName.equals(c.getCustName()))
+                .findFirst()
+                .get();
+       return cust.getCustID();
+    }
     
 }

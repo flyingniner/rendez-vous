@@ -5,8 +5,12 @@
  */
 package Controller_View;
 
+import Model.Appointment;
 import Model.BussApptMgntSyst;
+import static Model.BussApptMgntSyst.appointments;
+import static Model.BussApptMgntSyst.locale;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -47,10 +51,18 @@ public class MainViewController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
+        btnCustomers.setText(rb.getString("customers"));
+        btnSchedules.setText(rb.getString("schedules"));
+        btnReports.setText(rb.getString("reports"));
+        btnPrevPeriod.setText(rb.getString("prev"));
+        btnNextPeriod.setText(rb.getString("next"));
+        radByMonth.setText(rb.getString("monthly"));
+        radByWeek.setText(rb.getString("weekly"));
+        
         
         //FXMLLoader childScene = new FXMLLoader(getClass().getResource(FxmlView.MAIN.getFxmlFile()), rb);    
         //child = LoginViewController.getChild();
-        
+        loadAppointments();
         
         btnCustomers.setOnAction((event) ->
         {           
@@ -66,6 +78,17 @@ public class MainViewController implements Initializable
         {
             sceneMgr.displayScene(root, child, "Reports");
         });
+        
+        
     }    
     
+    private void loadAppointments()
+    {
+        try
+        {
+           appointments = Appointment.getAppointments(locale);    
+        } catch (SQLException e)
+        {
+        }
+    }
 }

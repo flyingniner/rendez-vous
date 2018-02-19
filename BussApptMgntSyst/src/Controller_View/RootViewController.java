@@ -46,6 +46,7 @@ public class RootViewController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb) 
     {
+        hlinkSignOut.setText(rb.getString("signout"));
         logger.setParent(BussApptMgntSyst.logger);
         hlinkSignOut.setOnAction((event) -> 
         {

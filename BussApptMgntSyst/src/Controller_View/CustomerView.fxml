@@ -65,39 +65,39 @@
                   <RowConstraints maxHeight="272.0" minHeight="10.0" prefHeight="268.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label text="Cust Id">
+                  <Label fx:id="lblCustId" text="Cust Id">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin></Label>
-                  <Label text="Name" GridPane.rowIndex="1">
+                  <Label fx:id="lblCustName" text="Name" GridPane.rowIndex="1">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin></Label>
-                  <Label text="Address" GridPane.rowIndex="2">
+                  <Label fx:id="lblAddress1" text="Address" GridPane.rowIndex="2">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin></Label>
-                  <Label text="Address" GridPane.rowIndex="3">
+                  <Label fx:id="lblAddress2" text="Address" GridPane.rowIndex="3">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin></Label>
-                  <Label text="City" GridPane.rowIndex="5">
+                  <Label fx:id="lblCity" text="City" GridPane.rowIndex="5">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin></Label>
-                  <Label text="Postal Code" GridPane.rowIndex="6">
+                  <Label fx:id="lblPostal" text="Postal Code" GridPane.rowIndex="6">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin></Label>
-                  <Label text="Country" GridPane.rowIndex="4">
+                  <Label fx:id="lblCountry" text="Country" GridPane.rowIndex="4">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin></Label>
-                  <Label text="Phone" GridPane.rowIndex="7">
+                  <Label fx:id="lblPhone" text="Phone" GridPane.rowIndex="7">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin></Label>
-                  <Label text="Cust Since" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                  <Label fx:id="lblCustSince" text="Cust Since" GridPane.columnIndex="2" GridPane.rowIndex="0">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin></Label>
@@ -121,7 +121,7 @@
                         <Insets left="20.0" />
                      </padding></Hyperlink>-->
                   <TextField fx:id="txtPhone" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="7" />
-                  <Label fx:id="lblCustSince" GridPane.columnIndex="3" GridPane.rowIndex="0" />
+                  <Label fx:id="lblCustSinceValue" GridPane.columnIndex="3" GridPane.rowIndex="0" />
                   <CheckBox fx:id="chkActive" mnemonicParsing="false" text="Active?" GridPane.rowIndex="8">
                      <GridPane.margin>
                         <Insets left="10.0" />
@@ -137,7 +137,7 @@
                         <Insets top="10.0" />
                      </GridPane.margin>
                   </Button>
-                  <Button fx:id="btnClose" mnemonicParsing="false" text="Close" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="TOP">
+                  <Button fx:id="btnCancel" mnemonicParsing="false" text="Close" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="9" GridPane.valignment="TOP">
                      <GridPane.margin>
                         <Insets top="10.0" />
                      </GridPane.margin>

@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
@@ -12,15 +13,16 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
 <AnchorPane layoutX="90.0" layoutY="79.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="728.0" prefWidth="979.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller_View.ScheduleViewController">
    <children>
-      <GridPane prefHeight="728.0" prefWidth="979.0">
+      <GridPane prefHeight="728.0" prefWidth="979.0" minWidth="979">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" maxWidth="540.0" minWidth="10.0" prefWidth="491.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="320.0" minWidth="9.0" prefWidth="9.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="479.0" minWidth="10.0" prefWidth="479.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="320.0" minWidth="9.0" prefWidth="9.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="479.0" minWidth="479.0" prefWidth="479.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints maxHeight="237.0" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
@@ -31,17 +33,17 @@
             <GridPane GridPane.rowIndex="1" GridPane.valignment="TOP">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="160.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="139.0" minWidth="10.0" prefWidth="87.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="178.0" minWidth="10.0" prefWidth="125.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="160.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="139.0" minWidth="10.0" prefWidth="87.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="10.0" prefWidth="125.0" />
               </columnConstraints>
               <rowConstraints>
                 <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
                 <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <Label fx:id="lblTitle" text="Title">
@@ -69,14 +71,26 @@
                         <Insets left="10.0" />
                      </GridPane.margin>
                   </Label>
+                  <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                     <children>
+                        <ChoiceBox fx:id="chStartHour" prefWidth="25.0" />
+                        <ChoiceBox fx:id="chStartMinute" prefWidth="25.0" />
+                        <ChoiceBox fx:id="chStartAmPm" prefWidth="25.0" />
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                     <children>
+                        <ChoiceBox fx:id="chEndHour" prefWidth="25.0" />
+                        <ChoiceBox fx:id="chEndMinute" prefWidth="25.0" />
+                        <ChoiceBox fx:id="chEndAmPm" prefWidth="25.0" />
+                     </children>
+                  </HBox>
                   <Label fx:id="lblEndTime" text="End Time" GridPane.columnIndex="2" GridPane.rowIndex="2">
                      <GridPane.margin>
                         <Insets left="10.0" />
                      </GridPane.margin>
                   </Label>
-                  <TextField fx:id="txtTitle" GridPane.columnIndex="1" />
-                  <TextField fx:id="txtStartTime" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                  <TextField fx:id="txtEndTime" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                  <TextField fx:id="txtTitle" GridPane.columnIndex="1" GridPane.columnSpan="3" />
                   <ComboBox fx:id="cmbCustomer" prefHeight="27.0" prefWidth="389.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3" />
                   <Label fx:id="lblNotes" alignment="TOP_LEFT" contentDisplay="TOP" text="Notes" GridPane.rowIndex="4" GridPane.valignment="TOP">
                      <GridPane.margin>
@@ -106,10 +120,12 @@
                   <Insets left="10.0" top="10.0" />
                </GridPane.margin>
             </GridPane>
-            <TableView fx:id="tblCalendar" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+            <TableView fx:id="tblCalendar" prefHeight="200.0" minWidth="580" GridPane.columnIndex="2" GridPane.rowIndex="1">
               <columns>
-                <TableColumn prefWidth="75.0" text="C1" />
-                <TableColumn prefWidth="75.0" text="C2" />
+                <TableColumn fx:id="colStartDate" prefWidth="140.0" text="Start" />
+                <TableColumn fx:id="colEndDate" prefWidth="140.0" text="End" />
+                <TableColumn fx:id="colCustomerName" prefWidth="160.0" text="Customer" />
+                <TableColumn fx:id="colTitle" prefWidth="140.0" text="Title" />
               </columns>
                <GridPane.margin>
                   <Insets right="10.0" top="10.0" />

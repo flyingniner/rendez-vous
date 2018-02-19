@@ -34,13 +34,17 @@ public class BussApptMgntSyst extends Application
     public static AnchorPane child;
     public static Logger logger;
     public static ObservableList<Customer> customers = FXCollections.observableArrayList(); 
-    public static ObservableList<Location> locations = FXCollections.observableArrayList();    
+    public static ObservableList<Location> locations = FXCollections.observableArrayList();  
+    public static ObservableList<Appointment> appointments = FXCollections.observableArrayList();
+   
     
     @Override
     public void start(Stage stage) throws Exception
     {
-        locale = Locale.getDefault();
-//        Locale locale = new Locale("es","VE");        
+//        locale = Locale.getDefault();
+        
+        
+        locale = new Locale("es","VE");        
                 
         ResourceBundle rb = ResourceBundle.getBundle("Model.BAMS", locale);
         FXMLLoader loader = new FXMLLoader(getClass().getResource(FxmlView.ROOT.getFxmlFile()), rb);
