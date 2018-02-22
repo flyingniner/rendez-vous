@@ -41,10 +41,10 @@ public class BussApptMgntSyst extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
-//        locale = Locale.getDefault();
+        locale = Locale.getDefault();
         
         
-        locale = new Locale("es","VE");        
+        //locale = new Locale("es","VE");        
                 
         ResourceBundle rb = ResourceBundle.getBundle("Model.BAMS", locale);
         FXMLLoader loader = new FXMLLoader(getClass().getResource(FxmlView.ROOT.getFxmlFile()), rb);

@@ -51,7 +51,6 @@ public class CustomerViewController implements Initializable
     SceneManager sceneMgr = new SceneManager();
     AnchorPane root = BussApptMgntSyst.root;
     AnchorPane child;
-    ResourceBundle resouce;
 
     @FXML private Button btnAddSave;
     @FXML private Button btnCancel;
@@ -96,26 +95,21 @@ public class CustomerViewController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
-        resouce = rb;
-        btnAddSave.setText(resouce.getString("save"));
-        btnCancel.setText(resouce.getString("cancel"));
-        btnClear.setText(resouce.getString("clear"));
-        lblCustId.setText(resouce.getString("custId"));
-        lblCustName.setText(resouce.getString("custName"));
-        lblAddress1.setText(resouce.getString("address"));
-        lblAddress2.setText(resouce.getString("address"));
-        lblCity.setText(resouce.getString("city"));
-        lblCountry.setText(resouce.getString("country"));
-        lblPhone.setText(resouce.getString("phone"));
-        lblPostal.setText(resouce.getString("postal"));
-        hLinkAddCity.setText(resouce.getString("addCityCountry"));
-        lblCustSince.setText(resouce.getString("custSince"));
-        chkActive.setText(resouce.getString("active"));
-        cmbCity.setPromptText(resouce.getString("select")); 
-        colCity.setText(resouce.getString("city"));
-        colCountry.setText(resouce.getString("country"));
-        colCustId.setText(resouce.getString("custId"));
-        colCustName.setText(resouce.getString("custName"));
+        btnAddSave.setText(rb.getString("save"));
+        btnCancel.setText(rb.getString("cancel"));
+        btnClear.setText(rb.getString("clear"));
+        lblCustId.setText(rb.getString("custId"));
+        lblCustName.setText(rb.getString("custName"));
+        lblAddress1.setText(rb.getString("address"));
+        lblAddress2.setText(rb.getString("address"));
+        lblCity.setText(rb.getString("city"));
+        lblCountry.setText(rb.getString("country"));
+        lblPhone.setText(rb.getString("phone"));
+        lblPostal.setText(rb.getString("postal"));
+        hLinkAddCity.setText(rb.getString("addCityCountry"));
+        lblCustSince.setText(rb.getString("custSince"));
+        chkActive.setText(rb.getString("active"));
+        
         
         
         
@@ -178,7 +172,6 @@ public class CustomerViewController implements Initializable
             }));
 
             cmbCity.setItems(tmp.sorted());
-            cmbCity.setPromptText(resouce.getString("select"));
         }
     }
 
@@ -486,8 +479,6 @@ public class CustomerViewController implements Initializable
         });
         
         cmbCountry.setItems(results.sorted());
-        cmbCountry.setPromptText(resouce.getString("select"));
-        
     }
 
     /**

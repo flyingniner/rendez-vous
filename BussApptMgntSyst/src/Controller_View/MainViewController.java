@@ -86,7 +86,7 @@ public class MainViewController implements Initializable
     {
         try
         {
-           appointments = Appointment.getAppointments(locale);    
+           appointments = Appointment.getAppointments();    
         } catch (SQLException e)
         {
         }

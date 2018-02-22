@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
@@ -16,26 +15,26 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<AnchorPane layoutX="90.0" layoutY="79.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="728.0" prefWidth="979.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller_View.ScheduleViewController">
+<AnchorPane layoutX="90.0" layoutY="79.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="838.0" prefWidth="1220.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller_View.ScheduleViewController">
    <children>
-      <GridPane prefHeight="728.0" prefWidth="979.0" minWidth="979">
+      <GridPane minWidth="979" prefHeight="758.0" prefWidth="1075.0">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="540.0" minWidth="10.0" prefWidth="491.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="320.0" minWidth="9.0" prefWidth="9.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="479.0" minWidth="479.0" prefWidth="479.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="540.0" minWidth="10.0" prefWidth="504.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="320.0" minWidth="0.0" prefWidth="16.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="589.0" minWidth="462.0" prefWidth="555.0" />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints maxHeight="237.0" minHeight="0.0" prefHeight="0.0" vgrow="SOMETIMES" />
-          <RowConstraints maxHeight="545.0" minHeight="10.0" prefHeight="541.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="237.0" minHeight="0.0" prefHeight="82.0" vgrow="SOMETIMES" />
+          <RowConstraints maxHeight="545.0" minHeight="10.0" prefHeight="545.0" vgrow="SOMETIMES" />
           <RowConstraints maxHeight="131.0" minHeight="10.0" prefHeight="81.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <GridPane GridPane.rowIndex="1" GridPane.valignment="TOP">
+            <GridPane prefHeight="535.0" prefWidth="504.0" GridPane.rowIndex="1" GridPane.valignment="TOP">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="160.0" minWidth="10.0" prefWidth="160.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="139.0" minWidth="10.0" prefWidth="87.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="10.0" prefWidth="125.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="139.0" minWidth="10.0" prefWidth="79.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="478.0" minWidth="10.0" prefWidth="153.0" />
               </columnConstraints>
               <rowConstraints>
                 <RowConstraints maxHeight="-Infinity" minHeight="10.0" prefHeight="35.0" vgrow="SOMETIMES" />
@@ -71,18 +70,18 @@
                         <Insets left="10.0" />
                      </GridPane.margin>
                   </Label>
-                  <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                  <HBox prefHeight="35.0" prefWidth="131.0" GridPane.columnIndex="3" GridPane.rowIndex="1">
                      <children>
-                        <ChoiceBox fx:id="chStartHour" prefWidth="25.0" />
-                        <ChoiceBox fx:id="chStartMinute" prefWidth="25.0" />
-                        <ChoiceBox fx:id="chStartAmPm" prefWidth="25.0" />
+                        <ComboBox fx:id="chStartHour" prefWidth="25.0" />
+                        <ComboBox fx:id="chStartMinute" prefWidth="25.0" />
+                        <ComboBox fx:id="chStartAmPm" prefWidth="25.0" />
                      </children>
                   </HBox>
                   <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
                      <children>
-                        <ChoiceBox fx:id="chEndHour" prefWidth="25.0" />
-                        <ChoiceBox fx:id="chEndMinute" prefWidth="25.0" />
-                        <ChoiceBox fx:id="chEndAmPm" prefWidth="25.0" />
+                        <ComboBox fx:id="chEndHour" prefWidth="25.0" />
+                        <ComboBox fx:id="chEndMinute" prefWidth="25.0" />
+                        <ComboBox fx:id="chEndAmPm" prefWidth="25.0" />
                      </children>
                   </HBox>
                   <Label fx:id="lblEndTime" text="End Time" GridPane.columnIndex="2" GridPane.rowIndex="2">
@@ -120,7 +119,7 @@
                   <Insets left="10.0" top="10.0" />
                </GridPane.margin>
             </GridPane>
-            <TableView fx:id="tblCalendar" prefHeight="200.0" minWidth="580" GridPane.columnIndex="2" GridPane.rowIndex="1">
+            <TableView fx:id="tblCalendar" minWidth="560.0" prefHeight="535.0" prefWidth="560.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
               <columns>
                 <TableColumn fx:id="colStartDate" prefWidth="140.0" text="Start" />
                 <TableColumn fx:id="colEndDate" prefWidth="140.0" text="End" />

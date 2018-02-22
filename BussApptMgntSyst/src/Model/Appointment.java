@@ -11,7 +11,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Locale;
+import java.time.ZonedDateTime;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -47,10 +47,12 @@ public class Appointment
         
     }
 
-    public static ObservableList<Appointment> getAppointments(Locale locale) throws SQLException
+    public static ObservableList<Appointment> getAppointments() throws SQLException
     {
         ObservableList<Appointment> appointments = FXCollections.observableArrayList();        
-        
+        ZoneId utcZoneId = ZoneId.of("UTC");
+        ZoneId sysZoneid = ZoneId.systemDefault();
+                      
         String queryString = "SELECT * FROM appointment";
         
         SqlHelperClass sql = new SqlHelperClass();
@@ -63,15 +65,24 @@ public class Appointment
             ResultSet rs = sql.executeQuery(stmt);
            
             while (rs.next())
-            {
+            {   
+
+                
+                System.out.println();
                 appointments.add(new Appointment(rs.getInt("appointmentId"),
                         rs.getInt("customerId"), 
                         rs.getString("title"), 
                         rs.getString("description"), 
-                        rs.getTimestamp("start").toLocalDateTime(), 
-                        rs.getTimestamp("end").toLocalDateTime()));
+                        rs.getTimestamp("start").toLocalDateTime()
+                                .atZone(utcZoneId)
+                                .withZoneSameInstant(sysZoneid)
+                                .toLocalDateTime(),
+                        rs.getTimestamp("end").toLocalDateTime()
+                                .atZone(utcZoneId)
+                                .withZoneSameInstant(sysZoneid)
+                                .toLocalDateTime()));
             }
-            
+           
         }
         catch (SQLException e)
         {
@@ -84,6 +95,15 @@ public class Appointment
     
     public static void addAppointmentToDb(Appointment appointment)
     {
+        ZoneId utcZoneId = ZoneId.of("UTC");
+        ZoneId sysZoneid = ZoneId.systemDefault();
+        
+        ZonedDateTime zdtStart = appointment.getStart().atZone(sysZoneid);
+        ZonedDateTime zdtUtcStart = zdtStart.withZoneSameInstant(utcZoneId);
+        LocalDateTime ldtUtcStart = zdtUtcStart.toLocalDateTime();
+        Timestamp startStamp = Timestamp.valueOf(ldtUtcStart);
+                
+
         String queryString = "INSERT INTO appointment \n"  
                 + "\t(appointmentId\n"
                 + "\t,customerId\n"
@@ -113,20 +133,29 @@ public class Appointment
         try
         {
             PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
-            
-            ZoneId utcZone = ZoneId.of("UTC");            
-            Timestamp utcTimeStamp = Timestamp.from(LocalDateTime
-                    .now().atZone(utcZone).toInstant());
+                                    
+            Timestamp utcTimeStamp = Timestamp.valueOf(LocalDateTime.now()
+                    .atZone(sysZoneid)
+                    .withZoneSameInstant(utcZoneId)
+                    .toLocalDateTime());
                         
             String userName = UserClass.getInstance().getUserName();
             
             //stmt.setString(1, "appointment");
-            stmt.setInt(1, appointment.getAppointmentId());
+            stmt.setInt(1, appointment.getNextAppointmentId());
             stmt.setInt(2, appointment.getCustomerId());
             stmt.setString(3, appointment.getTitle());
             stmt.setString(4, appointment.getDescription());
-            stmt.setTimestamp(5, Timestamp.from(appointment.getStart().atZone(utcZone).toInstant()));
-            stmt.setTimestamp(6, Timestamp.from(appointment.getEnd().atZone(utcZone).toInstant()));
+            stmt.setTimestamp(5, Timestamp.valueOf(appointment.getStart()
+                    .atZone(sysZoneid)
+                    .withZoneSameInstant(utcZoneId)
+                    .toLocalDateTime()
+                    ));
+            stmt.setTimestamp(6, Timestamp.valueOf(appointment.getEnd()
+                    .atZone(sysZoneid)
+                    .withZoneSameInstant(utcZoneId)
+                    .toLocalDateTime()
+                    ));
             stmt.setTimestamp(7, utcTimeStamp);
             stmt.setString(8, userName);
             stmt.setTimestamp(9, utcTimeStamp);
@@ -197,6 +226,7 @@ public class Appointment
     public IntegerProperty appointmentIdProperty() { return appointmentId; }
     public void setAppointmentId(int appointmentId) { this.appointmentId.set(appointmentId); }
     public int getAppointmentId() { return this.appointmentId.get(); }
+    //public static int getAppointmentId(Appointment apt) {return apt.getAppointmentId();}
 
     public IntegerProperty customerIdProperty() { return customerId; }
     public void setCustomerId(int customer) { this.customerId.set(customer); }
@@ -217,6 +247,13 @@ public class Appointment
     public ObjectProperty<LocalDateTime> endProperty() { return end; }
     public void setEnd(LocalDateTime end) { this.end.set(end); }
     public LocalDateTime getEnd() { return this.end.get(); }
+    
+    private int getNextAppointmentId()
+    {
+        Appointment apt = BussApptMgntSyst.appointments.stream()
+            .max((id1, id2) -> Integer.compare(id1.getAppointmentId(), id2.getAppointmentId())).get();
+        return apt.getAppointmentId() + 1;
+    }
     
     
 }

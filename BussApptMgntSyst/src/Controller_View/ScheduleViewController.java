@@ -9,10 +9,14 @@ import Model.Appointment;
 import Model.BussApptMgntSyst;
 import Model.Customer;
 import java.net.URL;
+import java.text.FieldPosition;
+import java.text.Format;
+import java.text.ParsePosition;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.stream.IntStream;
@@ -26,6 +30,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -44,7 +49,6 @@ public class ScheduleViewController implements Initializable
     SceneManager sceneMgr = new SceneManager();
     AnchorPane root = BussApptMgntSyst.root;
     AnchorPane child;
-    ResourceBundle resource;
     
     @FXML private Label lblTitle;
     @FXML private Label lblFromDate;
@@ -52,16 +56,15 @@ public class ScheduleViewController implements Initializable
     @FXML private Label lblCustomer;
     @FXML private Label lblStartTime;
     @FXML private Label lblEndTime;
-    @FXML private Label lblNotes;
     @FXML private TextField txtTitle;
     @FXML private DatePicker dtFromDate;
     @FXML private DatePicker dtToDate;
-    @FXML private ChoiceBox<Integer> chStartHour;
-    @FXML private ChoiceBox<Integer> chStartMinute;
-    @FXML private ChoiceBox<String> chStartAmPm;
-    @FXML private ChoiceBox<Integer> chEndHour;
-    @FXML private ChoiceBox<Integer> chEndMinute;
-    @FXML private ChoiceBox<String> chEndAmPm;
+    @FXML private ComboBox<String> chStartHour;
+    @FXML private ComboBox<String> chStartMinute;
+    @FXML private ComboBox<String> chStartAmPm;
+    @FXML private ComboBox<String> chEndHour;
+    @FXML private ComboBox<String> chEndMinute;
+    @FXML private ComboBox<String> chEndAmPm;
     @FXML private ComboBox cmbCustomer;
     @FXML private TextArea txtNotes;
     @FXML private Button btnSave;
@@ -77,27 +80,10 @@ public class ScheduleViewController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
-        resource = rb;
-        lblTitle.setText(resource.getString("title"));
-        lblFromDate.setText(resource.getString("startDate"));
-        lblToDate.setText(resource.getString("endDate"));
-        lblCustomer.setText(resource.getString("customer"));
-        lblStartTime.setText(resource.getString("startTime"));
-        lblEndTime.setText(resource.getString("endTime"));
-        btnSave.setText(resource.getString("save"));
-        lblNotes.setText(resource.getString("notes"));
-        btnDelete.setText(resource.getString("delete"));
-        btnClose.setText(resource.getString("close"));
-        colStartDate.setText(resource.getString("start"));
-        colEndDate.setText(resource.getString("end"));
-        colTitle.setText(resource.getString("title"));
-        colCustomerName.setText(resource.getString("customer"));
-        
-        
         loadCustomers();
         loadTimeFields();
         loadAppointmentTable();
-        btnClose.setOnAction((event) -> sceneMgr.displayScene(root, child, "Main"));    
+        btnClose.setOnAction((event) -> handleCloseButton());    
         cmbCustomer.setItems(setCustComboBox());
         btnSave.setOnAction(x -> {
            handleSaveButton();
@@ -112,12 +98,12 @@ public class ScheduleViewController implements Initializable
             //check that appointment does not overlap another appointment        
         
         
-        int startHour = chStartHour.getValue();
-        int startMinute = chStartMinute.getValue();
+        int startHour = Integer.parseInt(chStartHour.getValue());
+        int startMinute = Integer.parseInt(chStartMinute.getValue());
         String startPeriod = chStartAmPm.getValue();
         
-        int endHour = chEndHour.getValue();
-        int endMinute = chEndMinute.getValue();
+        int endHour = Integer.parseInt(chEndHour.getValue());
+        int endMinute = Integer.parseInt(chEndMinute.getValue());
         String endPeriod = chEndAmPm.getValue();
         
         //parse values into time objects
@@ -142,10 +128,16 @@ public class ScheduleViewController implements Initializable
     }
     
     private void handleCloseButton()
-    {}
+    {
+        //TODO: check for unsaved (new or changed) record
+        sceneMgr.displayScene(root, child, "Main");
+    }
     
     private void handleDeleteButton()
-    {}
+    {
+        //Confirm delete request
+        //Delete current appointment from DB and ObservableList<Appointment>
+    }
     
     private LocalTime parseTimeField(int hour, int minute, String period)
     {
@@ -175,46 +167,110 @@ public class ScheduleViewController implements Initializable
             BussApptMgntSyst.customers = customer.getCustomers();        
     }
 
+    /**
+     * Loads the hour, minute and am/pm drop down boxes.
+     */
     private void loadTimeFields()
-    {
-        //create values to populate fields
-        ObservableList<Integer> startHours = FXCollections.observableArrayList();
-        ObservableList<Integer> startMinutes = FXCollections.observableArrayList();
+    {        
+        ObservableList<String> startHours = FXCollections.observableArrayList();
+        ObservableList<String> startMinutes = FXCollections.observableArrayList();
         ObservableList<String> startAmPm = FXCollections.observableArrayList();
-        ObservableList<Integer> endHours = FXCollections.observableArrayList();
-        ObservableList<Integer> endMinutes = FXCollections.observableArrayList();
+        ObservableList<String> endHours = FXCollections.observableArrayList();
+        ObservableList<String> endMinutes = FXCollections.observableArrayList();
         ObservableList<String> endAmPm = FXCollections.observableArrayList();        
         
-        //assign values to start time choice boxes
-        IntStream.rangeClosed(1, 12).boxed().forEach(x -> startHours.add(0, x));
-        IntStream.rangeClosed(0, 59).boxed().forEach(x -> startMinutes.add(0, x));
+        //assign values to Start time dropdowns
+        IntStream.rangeClosed(1, 12).boxed().forEach(x -> startHours.add(0, String.format("%02d", x)));
+        IntStream.rangeClosed(0, 59).boxed().forEach(x -> startMinutes.add(0, String.format("%02d", x)));
         startAmPm.add("AM");
         startAmPm.add("PM");
+        
         chStartHour.setItems(startHours.sorted());        
         chStartMinute.setItems(startMinutes.sorted());
         chStartAmPm.setItems(startAmPm);
         
-        //assign values to end time choice boxes
-        IntStream.rangeClosed(1, 12).boxed().forEach(x -> endHours.add(0, x));
-        IntStream.rangeClosed(0, 59).boxed().forEach(x -> endMinutes.add(0, x));
+        //assign values to End time dropdowns 
+        IntStream.rangeClosed(1, 12).boxed().forEach(x -> endHours.add(0, String.format("%02d", x)));
+        IntStream.rangeClosed(0, 59).boxed().forEach(x -> endMinutes.add(0, String.format("%02d", x)));
         endAmPm.add("AM");
         endAmPm.add("PM");
         chEndHour.setItems(startHours.sorted());        
         chEndMinute.setItems(startMinutes.sorted());
         chEndAmPm.setItems(endAmPm);        
 
+        //set maximum visable rows
+        chStartHour.setVisibleRowCount(10);
+        chStartMinute.setVisibleRowCount(10);
+        chEndHour.setVisibleRowCount(10);
+        chEndMinute.setVisibleRowCount(10);
+        
     }
 
-    //private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:MM");
-    
+    /**
+     * Loads the appointment table with all appointments.
+     */
     private void loadAppointmentTable()
     {
         Appointment apt = new Appointment();
+        final DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);                     
         
         tblCalendar.setItems(BussApptMgntSyst.appointments);
+        
+        //get and format start date/time
         colStartDate.setCellValueFactory(x -> x.getValue().startProperty());
+        colStartDate.setCellFactory(col -> new TableCell<Appointment, LocalDateTime>()
+        {
+            @Override
+            protected void updateItem(LocalDateTime item, boolean empty)
+            {
+                super.updateItem(item, empty);
+                if (empty)
+                    setText(null);
+                else
+                    setText(String.format(item.format(formatter)));
+            }
+        });
+        
+        
+        //get and format end date/time
         colEndDate.setCellValueFactory(x -> x.getValue().endProperty());
+        colEndDate.setCellFactory(col -> new TableCell<Appointment,LocalDateTime>() 
+        {
+            @Override
+            protected void updateItem(LocalDateTime item, boolean empty) 
+            {
+                super.updateItem(item, empty);
+                if (empty)
+                    setText(null);
+                else
+                    setText(String.format(item.format(formatter)));                           
+            }
+        });
+                
+        //get and format customer name
         colCustomerName.setCellValueFactory(x -> x.getValue().customerIdProperty().asString());
+        colCustomerName.setCellFactory(col -> new TableCell<Appointment, String>()
+        {
+            @Override
+            protected void updateItem(String item, boolean empty) 
+            {
+                super.updateItem(item, empty);
+                if (empty)
+                    setText(null);
+                else
+                {
+                    BussApptMgntSyst.customers.forEach((x) -> 
+                    {
+                        if (x.getCustID()==Integer.parseInt(item))
+                        {
+                            setText(x.getCustName());
+                            return;
+                        }
+                    });                                        
+                }                           
+            }
+        });
+        
         colTitle.setCellValueFactory(x -> x.getValue().titleProperty());
     }
     
