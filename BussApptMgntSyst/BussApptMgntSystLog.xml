@@ -1,0 +1,18 @@
+Feb 24, 2018 4:31:22 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 24, 2018 4:31:25 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 1, userName: test]
+Feb 24, 2018 4:31:30 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 1, userName: test]
+Feb 24, 2018 4:32:56 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 24, 2018 4:32:59 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 1, userName: test]
+Feb 24, 2018 4:33:03 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 1, userName: test]
+Feb 24, 2018 4:33:05 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 24, 2018 4:33:09 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 1, userName: test]
+Feb 24, 2018 4:33:11 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 1, userName: test]

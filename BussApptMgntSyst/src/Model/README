@@ -1,0 +1,171 @@
+
+Requirement A:
+    Create a log-in form that can determine the user’s location and translate 
+    log-in and error control messages (e.g., “The username and password did not 
+    match.”) into two languages.
+
+Solution:
+    Main application launches from the file BussApptMgntSyst.java. In that file,
+    the start() method determines the local using your system default. Support 
+    has been added in resource bundle for both English and Spanish. You can
+    comment out line 44 and uncomment line 45 to see this in action.
+
+    The login form (LoginView.fxml) is initialized by LoginViewController.java.
+    The following usernames and passwords are available to use:
+        
+        UserName    Password
+        --------    --------
+        test        test
+        admin       admin
+
+    The login form validates the UserName and Password fields against the values
+    stored in the database. The following exception controls are implemented:
+    1)  If either the UserName or Password fields don't match the expected 
+        results, user is not logged in and is presented with an error message on
+        the login form.
+    2)  Login attempts (successful or unsuccessful) are logged and written to 
+        the log file. (See requirement J below for more information about the
+        log file.)
+
+--------------------------------------------------------------------------------
+
+Requirement B:
+    Provide the ability to enter and maintain customer records in the database,
+    including name, address, and phone number.
+
+Solution:
+    After successful login, user is presented with the main view of the app. 
+    Customer records are accessed by clicking the Customers button which loads
+    the CustomerView. From the CustomerView, the user can create new customers
+    or select existing customers from the table. The table can be searched as 
+    well using the search box.
+    
+    The following exception controls are present:
+    1)  Changing an existing customer must be confirmed by the user.
+    2)  Country and city values must be selected from a dropdown list. User has
+        the ability to add a new country/city combination.
+    3)  Pressing cancel checks if there are unsaved changes (i.e. a new customer
+        that hasn't been saved or an existing customer that has been modified)
+        and prompts the user to confirm the cancel request.
+
+--------------------------------------------------------------------------------
+
+Require C:
+    Write lambda expression(s) to schedule and maintain appointments, capturing 
+    the type of appointment and a link to the specific customer record in the 
+    database.
+
+Solution:
+    The ScheduleView form provides the functionality of creating, modifying, or
+    deleting appointments. A calendar view (in the form of a table) is displayed
+    to the user showing all available appointments, sorted from oldest to 
+    newest appointment. Appointments are filtered using a lambda to display 
+    only those that belong to the current user logged in (assumption is you 
+    wouldn't want another user changing your schedule).
+
+    Lambdas are used as follows:
+    1)  When checking for appointment overlaps (see ScheduleViewController 
+        @ line #239). 
+    2)  When loading the available customers to choose from (see 
+        ScheduleViewController @ line #374).
+    3)  IntStreams along with lambdas are used to created the dropdown values 
+        for the start and end times (see ScheduleViewController @ line #421).
+    4)  To get the next available appointment id. 
+    5)  To convert the customerName to and from a customerId in the Customer
+        class. (see lines 301 & 310)
+
+    The following exception controls are present. In each case, an 
+    IllegalArguementException is thrown and caught. When caught, the user is 
+    presented with an error specific to the issue:
+    1)  The user musts select a starting and ending dates/times.
+    2)  The starting and ending dates/times musts make sense:
+        a)  Start time comes before end time
+        b)  Start and end times are within business hours of 8AM to 5PM
+    3)  An appointment type must be selected.
+    4)  A customer must be selected.
+    5)  Appointments may not overlap.
+    6)  Changing or deleting an existing appointment requires user confirmation.
+  
+--------------------------------------------------------------------------------
+
+Requirement D:
+    Provide the ability to view the calendar by month and by week.
+
+Solution:
+    On the MainView of the application, the user is displayed all appointments 
+    for all users. The user may choose 3 sorting options: "All", "Monthly", and
+    "Weekly".
+    
+    When either Monthly or Weekly views are enabled, they user may traverse the
+    appointments by using the Prev and Next buttons to move forward by week or
+    by month, respectively. If a particular time period does not have any
+    appointments, the display alerts the user of this fact.
+
+--------------------------------------------------------------------------------
+
+Requirement E:
+    Provide the ability to automatically adjust appointment times based on user 
+    time zones and daylight saving time.
+
+Solution:
+    I've chosen to save all dates/times in UTC format in the database. before an
+    insert or update statement is made, the LocalDateTimes are converted into 
+    UTC. Similarly, when executing a select statement, dates/times are converted
+    back to LocalDateTimes. 
+
+    A special Utils class handles the conversion of the date times with two 
+    methods. 
+
+--------------------------------------------------------------------------------
+
+Requirement F:
+    Write exception controls to prevent each of the following. You may use the 
+    same mechanism of exception control more than once, but you must incorporate
+    at least two different mechanisms of exception control.
+
+    •   Scheduling an appointment outside business hours 
+        (see ScheduleViewController @line 152)
+    •   Scheduling overlapping appointments (ScheduleViewController @line #198 &
+        217)
+    •   Entering nonexistent or invalid customer data ()
+    •   Entering an incorrect username and password (see LoginViewController 
+        @line #121)
+
+Solution:
+    Exception controls methods used and where:
+    
+    *   Try - Catch: see SqlHelperClass @ lines: 40, 60
+    *   throws Exception: see Appointment class @ lines: 52, 92 (this allows the
+        exception to bubble up to be handled by the caller).
+
+--------------------------------------------------------------------------------
+
+Requirement G:
+    Use lambda expressions to create standard pop-up and alert messages.
+
+
+
+--------------------------------------------------------------------------------
+
+Requirement H:
+    Write code to provide reminders and alerts 15 minutes in advance of an 
+    appointment, based on the user’s log-in.
+
+
+
+--------------------------------------------------------------------------------
+
+Requirement I:
+Provide the ability to generate each of the following reports:
+    •   number of appointment types by month
+    •   the schedule for each consultant
+    •   one additional report of your choice
+
+
+
+--------------------------------------------------------------------------------
+
+Requirement J:
+    Provide the ability to track user activity by recording timestamps for user 
+    log-ins in a .txt file. Each new record should be appended to the log file, 
+    if the file already exists.

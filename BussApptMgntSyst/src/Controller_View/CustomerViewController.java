@@ -9,7 +9,9 @@ import Model.Address;
 import Model.BussApptMgntSyst;
 import Model.Customer;
 import Model.Location;
+import Model.Utils;
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Optional;
@@ -87,6 +89,7 @@ public class CustomerViewController implements Initializable
     private int selectedCustId;
     private static ObservableList<Customer> filteredCustList = FXCollections.observableArrayList();
     private static String tempCountry = null;
+    private ResourceBundle resource;
     
     boolean alertResponse = false; //stores response from alert box
     /**
@@ -95,23 +98,26 @@ public class CustomerViewController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
-        btnAddSave.setText(rb.getString("save"));
-        btnCancel.setText(rb.getString("cancel"));
-        btnClear.setText(rb.getString("clear"));
-        lblCustId.setText(rb.getString("custId"));
-        lblCustName.setText(rb.getString("custName"));
-        lblAddress1.setText(rb.getString("address"));
-        lblAddress2.setText(rb.getString("address"));
-        lblCity.setText(rb.getString("city"));
-        lblCountry.setText(rb.getString("country"));
-        lblPhone.setText(rb.getString("phone"));
-        lblPostal.setText(rb.getString("postal"));
-        hLinkAddCity.setText(rb.getString("addCityCountry"));
-        lblCustSince.setText(rb.getString("custSince"));
-        chkActive.setText(rb.getString("active"));
-        
-        
-        
+        resource = rb;
+        //get language for form controls
+        btnAddSave.setText(resource.getString("save"));
+        btnCancel.setText(resource.getString("cancel"));
+        btnClear.setText(resource.getString("clear"));
+        lblCustId.setText(resource.getString("custId"));
+        lblCustName.setText(resource.getString("custName"));
+        lblAddress1.setText(resource.getString("address"));
+        lblAddress2.setText(resource.getString("address"));
+        lblCity.setText(resource.getString("city"));
+        lblCountry.setText(resource.getString("country"));
+        lblPhone.setText(resource.getString("phone"));
+        lblPostal.setText(resource.getString("postal"));
+        hLinkAddCity.setText(resource.getString("addCityCountry"));
+        lblCustSince.setText(resource.getString("custSince"));
+        lblCustSince.setVisible(false);
+        chkActive.setText(resource.getString("active"));
+        txtCustId.setEditable(false);
+        txtCustId.setText(String.valueOf(Customer.getNextCustomerId()));
+               
         
         //set form element behaviours
         btnAddSave.setOnAction((event) -> handleSaveButton());
@@ -124,20 +130,18 @@ public class CustomerViewController implements Initializable
         {
             populateCustomerFields(newValue);
         });
+        
         txtSearch.textProperty()
                 .addListener((observable, oldValue, newValue) ->
         {
             handleSearchCustomers(oldValue, newValue);            
         });
+        
         hLinkAddCity.setOnAction((event) -> 
         {
             handleNewLocation();
             loadComboBoxValues();
         });
-//        hLinkAddCountry.setOnAction((event) -> handleAddCountry());
-        cmbCity.setDisable(true);
-       // Address.getAllLocations();
-        //cmbCountry.setItems((ObservableList) BussApptMgntSyst.cityCountryPairs.keySet());
 
         cmbCountry.valueProperty().addListener((observable, oldValue, newValue) ->
         {               
@@ -145,6 +149,7 @@ public class CustomerViewController implements Initializable
             filterCities(newValue);                
         });
 
+        cmbCity.setDisable(true);
         
         
         //initialize form data elements
@@ -181,7 +186,6 @@ public class CustomerViewController implements Initializable
     private void handleSaveButton()
     {
         saveCustomer();
-        prePopCustomerTable();
         clearFields();
     }
 
@@ -197,7 +201,7 @@ public class CustomerViewController implements Initializable
             String headerText = "Unsaved Changes";
             String contentText = "You have unsaved changes. Do you want"
                     + "\nto continue without saving?";
-            displayAlert(headerText, contentText);
+            Utils.displayAlertConfirmation(headerText, contentText);
             if (!alertResponse)
                 return;
         }
@@ -210,11 +214,12 @@ public class CustomerViewController implements Initializable
      */
     private void prePopCustomerTable()
     {
-        Customer customer = new Customer();
-        
-        if (BussApptMgntSyst.customers.isEmpty())
-            BussApptMgntSyst.customers = customer.getCustomers();
-        tblCustomers.setItems(BussApptMgntSyst.customers.sorted());
+//        if (BussApptMgntSyst.customers.isEmpty())
+//        {
+            BussApptMgntSyst.customers = Customer.getCustomers();
+            
+//        }
+        tblCustomers.setItems(BussApptMgntSyst.customers);
         colCustId.setCellValueFactory(x -> x.getValue().custIdProperty());      
         colCustName.setCellValueFactory(x -> x.getValue().custNameProperty());     
         colCity.setCellValueFactory(x -> x.getValue().cityProperty());
@@ -238,6 +243,7 @@ public class CustomerViewController implements Initializable
         txtPhone.setText(cust.getPhone());
         chkActive.setSelected(cust.getActive());
         lblCustSinceValue.setText(cust.getCustSince());
+        lblCustSince.setVisible(true);        
     }
     
     /**
@@ -256,7 +262,9 @@ public class CustomerViewController implements Initializable
         txtPostal.setText("");
         txtPhone.setText("");
         chkActive.setSelected(false);
-        lblCustSince.setText("");
+        lblCustSince.setVisible(false);
+        lblCustSinceValue.setVisible(false);
+        
     }
         
     /**
@@ -309,11 +317,10 @@ public class CustomerViewController implements Initializable
      * confirm they want to update the record.
      */
     private void saveCustomer()
-    {
-        //create an instance of Customer using field values
+    {        
         int id = Integer.parseInt(txtCustId.getText());
         Customer cust = new Customer();
-        cust.setCustID(id);
+      //  cust.setCustID(id);
         cust.setCustName(txtCustName.getText());
         cust.setAddr1(txtAddress1.getText());
         cust.setAddr2(txtAddress2.getText());
@@ -322,65 +329,42 @@ public class CustomerViewController implements Initializable
         cust.setPostalCode(txtPostal.getText());
         cust.setPhone(txtPhone.getText());
         cust.setActive(chkActive.isSelected());               
-        if(lblCustSince.getText().isEmpty())
-            cust.setCustSince(LocalDateTime.now().toString());        
-        else
-            cust.setCustSince(lblCustSince.getText());
+       
             
         //check if this is a new customer
         try
         {            
             //Check if customer already exists in the Customer collection
-            if (customerExists(id)!=null)
+            if (customerExists(id).isPresent())
             {
+                cust.setCustID(id);
+                cust.setCustSince(lblCustSinceValue.getText());
                 //if true, ask user to confirm the request
                 String headerText = "Overwrite Customer?";
                 String contentText = "Saving will override the current customer. \n"
                         + "Do you want to continue?";
-                displayAlert(headerText, contentText);
+                alertResponse = Utils.displayAlertConfirmation(headerText, contentText);
                 
                 if (alertResponse == true)
-                    updateExistingCustomer(id);     
+                    Customer.updateCustomerInDb(cust, id);
+                    //updateExistingCustomer(id);     
                 else
                     return;
             }
                         
             else //this is a new customer
-            {                
-                BussApptMgntSyst.customers.add(cust); //add to the collection in memory
-                //TODO add to MySql...
+            { 
+                cust.setCustID(id);                
+                Customer.addCustomerToDb(cust);
             }       
         }
         catch(Exception e)
-        {     
+        {   
+            //TODO handle the exception
             throw e;
         }
     }
     
-    private void saveCustomer(int index)
-    {
-        //get current instance of Customer and update values
-        //int id = );
-        Customer cust = BussApptMgntSyst.customers.get(index);
-        cust.setCustID(Integer.parseInt(txtCustId.getText()));
-        cust.setCustName(txtCustName.getText());
-        cust.setAddr1(txtAddress1.getText());
-        cust.setAddr2(txtAddress2.getText());
-        cust.setCity(cmbCity.getValue().toString());
-        cust.setCountry(cmbCountry.getValue().toString());
-        cust.setPostalCode(txtPostal.getText());
-        cust.setPhone(txtPhone.getText());
-        cust.setActive(chkActive.isSelected());               
-//        if(lblCustSince.getText().isEmpty())
-//            cust.setCustSince(LocalDateTime.now().toString());        
-//        else
-//            cust.setCustSince(lblCustSince.getText());
-        BussApptMgntSyst.customers.set(index, cust);
-        Customer.updateCustomerInDb(cust, index);
-        //Customer.updateCustomAddressIndDb(cust, index);
-        //Customer.udpateCustomerCityInDb(cust, index);
-        //Customer.udpateCustomerCountryInDb(cust, index);
-    }
     
     private Optional<Customer> customerExists(int id)
     {
@@ -388,16 +372,14 @@ public class CustomerViewController implements Initializable
                 .filter(x -> ((Integer) x.getCustID()).equals(id)).findFirst();                   
     }
     
-    private void updateExistingCustomer(int id)
-    {
-        Optional<Customer> c = BussApptMgntSyst.customers.stream()
-                .filter(x -> ((Integer) x.getCustID()).equals(id))
-                .findFirst();
-        //int index = customers.indexOf(c.get());
-        saveCustomer(BussApptMgntSyst.customers.indexOf(c.get()));
-        
-        
-    }
+//    private void updateExistingCustomer(int id)
+//    {
+//        Optional<Customer> c = BussApptMgntSyst.customers.stream()
+//                .filter(x -> ((Integer) x.getCustID()).equals(id))
+//                .findFirst();
+//        //int index = customers.indexOf(c.get());
+//        saveCustomer(BussApptMgntSyst.customers.indexOf(c.get()));               
+//    }
     
     /**
      * Validates the user's input value can be cast to a integer. If it cannot,
@@ -420,7 +402,7 @@ public class CustomerViewController implements Initializable
                 
                 String message = "The input value for [" +field.getId()+ "] "+
                 "must be a valid number data type. Required data type: Integer.";                
-                displayAlert("Data Input Error", message);            
+                Utils.displayAlertConfirmation("Data Input Error", message);            
                 
                 field.requestFocus();
                 return false;
@@ -444,22 +426,7 @@ public class CustomerViewController implements Initializable
     }
     
     
-    /**
-     * Displays a Confirmation Alert box to the user.
-     * @param headerText 
-     * @param contentText 
-     */
-    private void displayAlert(String headerText, String contentText)
-    {
-        
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setHeaderText(headerText);
-                alert.setContentText(contentText);            
-
-               alert.showAndWait()
-                    .filter(response -> response == ButtonType.OK)
-                    .ifPresent(x -> alertResponse = true);      
-    }
+    
 
     /**
      * Loads the city and country combo boxes with the available options. If 
@@ -470,7 +437,7 @@ public class CustomerViewController implements Initializable
     {
         if(BussApptMgntSyst.locations.isEmpty())
             Location.loadlLocations();
-        //TODO: this is wrong, need to get country info from locations
+        
         ObservableList<String> results = FXCollections.observableArrayList();
         BussApptMgntSyst.locations.forEach((x) -> 
         {
@@ -480,6 +447,7 @@ public class CustomerViewController implements Initializable
         
         cmbCountry.setItems(results.sorted());
     }
+    
 
     /**
      * Presents the user with a dialog box to add a city and associate it 
@@ -574,7 +542,7 @@ public class CustomerViewController implements Initializable
             }            
             else if (cityMissing == true)
             {
-                displayAlert("Missing City Value", "You must enter a city name.");
+                Utils.displayAlertConfirmation("Missing City Value", "You must enter a city name.");
                 handleNewLocation();
             }            
         });  
@@ -614,8 +582,7 @@ public class CustomerViewController implements Initializable
         
         
         diag.showAndWait().ifPresent(response -> 
-        {
-            
+        {            
             System.out.println(response);  
             tempCountry= response;
 //            Address.addCountryToDb(response);

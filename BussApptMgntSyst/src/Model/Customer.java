@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.logging.Level;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -91,7 +92,7 @@ public class Customer //extends Address
         setCountry(country);
     }
     
-    public ObservableList<Customer> getCustomers()
+    public static ObservableList<Customer> getCustomers()
     {
         //if(customers.isEmpty())
         getCustomersFromDB();        
@@ -103,7 +104,34 @@ public class Customer //extends Address
         customers.add(customer);
     }
     
-    public void getCustomersFromDB()
+    public static int getNextCustomerId()
+    {
+        String queryString = "SELECT customerId FROM customer "
+                + "ORDER BY 1 DESC LIMIT 1;";
+        
+        ResultSet rs;
+        int result = 0;
+                
+        try
+        {
+            SqlHelperClass sql = new SqlHelperClass();
+            PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
+            
+            rs = sql.executeQuery(stmt);
+            
+            while (rs.next())
+            {
+                result = rs.getInt("customerId")+1;
+            }            
+        }
+        catch (SQLException e)
+        {
+            BussApptMgntSyst.logger.log(Level.WARNING, e.getMessage());            
+        }
+        return result;
+    }
+    
+    public static void getCustomersFromDB()
     {     
         String queryString = "SELECT \n" +
                             "    cu.customerId\n" +
@@ -127,8 +155,12 @@ public class Customer //extends Address
         try
         {
             SqlHelperClass sql = new SqlHelperClass();
-            rs = sql.executeQuery(queryString);
-
+            PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
+            
+            rs = sql.executeQuery(stmt);
+            
+            customers.clear();
+            
             while(rs.next()) //query string returns a result
             { 
                Customer cust = new Customer();
@@ -148,119 +180,115 @@ public class Customer //extends Address
         }
 
         catch (SQLException e)
-        {          
+        { 
+            //TODO handle sql exception
             System.err.println(e.getMessage());            
         }          
     }
     
     
-    
-    private void addCustomerToDb(Customer customer)
-    {
-        
-        //1) add address to DB -> this should be done in the address class
-        
-        //2) lookup addressId from Db
-        //3) add customer to Db
-        
-        //TODO querySTring is not yet complete
-        String queryString = "INSERT INTO Customer (customerName, addressId, active,"
-                + "createdDate, createdBy, lastUpdate, lastUpdateBy) VALUES (";
-        StringBuilder builder = new StringBuilder(queryString);
-        builder.append(customer.custName + ", ");
-       
-        
-        
+    /**
+     * Adds a new customer to the database. 
+     * @param customer 
+     */
+    public static void addCustomerToDb(Customer customer)
+    {                
+        String queryString = "INSERT INTO customer "
+                + "VALUES (?, "     //customerId    (1)
+                + "?, "             //customerName  (2)
+                + "?,"              //addressId     (3)
+                + "?,"              //active        (4)
+                + "?, "             //createDate    (5)
+                + "?, "             //createBy      (6)
+                + "?, "             //lastUpdate    (7)
+                + "?);";            //lastUpdateBy  (8)
+                        
         try
         {
             SqlHelperClass sql = new SqlHelperClass();
-            ResultSet rs = sql.executeQuery(queryString);
+            PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
+          
+            stmt.setInt(1, customer.getCustID());
+            stmt.setString(2, customer.getCustName());
+            stmt.setInt(3, Address.addAddressToDB(customer));
+            stmt.setBoolean(4, customer.getActive());
+            stmt.setTimestamp(5, Utils.convertLocaLDateTimeToUtc(LocalDateTime.now()));
+            stmt.setString(6, UserClass.getInstance().getUserName());
+            stmt.setTimestamp(7, Utils.convertLocaLDateTimeToUtc(LocalDateTime.now()));
+            stmt.setString(8, UserClass.getInstance().getUserName());
             
-            if(rs.next()) //query string returns a result
-            {
-
-            }            
+            sql.executeUpdateQuery(stmt);
+            
+            Customer.getCustomers();
         }
         catch (SQLException e)
         {
-            
+            Utils.displayAlertError("SQL ERROR", e.getMessage());
         }
         
     }
+    
     
     public static void updateCustomerInDb(Customer customer, int index)
     {
         try
         {
             SqlHelperClass sql = new SqlHelperClass();
-//             String queryString = "UPDATE customer c, address a \n" +
-//                     "SET \n" +
-//                     "    c.customerName = ?\n" + //1
-//                     "    ,c.active = ?\n" +        //2
-//                     "    ,c.lastUpdate = ?\n" +   //3
-//                     "    ,c.lastUpdateBy = ?\n" + //4
-//                     "WHERE \n" +
-//                     "    c.customerId = ?;";      //5
-//             
-            String queryString = "UPDATE \n" +
-                                 "    customer c\n" +                       
-                                 "    ,address a\n" +                       
-                                 "    ,city ci\n" +                         
-                                 "    ,country co\n" +                      
-                                 "SET\n" +                                  
-                                 "    c.customerName = ?\n" +               //01
-                                 "    ,c.active = ?\n" +                    //02
-                                 "    ,c.lastUpdate = ?\n" +                //03
-                                 "    ,c.lastUpdateBy = ?\n" +              //04
-                                 "    ,a.address = ?\n" +                   //05
-                                 "    ,a.address2 = ?\n" +                  //06
-                                 "    ,a.postalCode = ?\n" +                //07
-                                 "    ,a.phone = ?\n" +                     //08
-                                 "    ,a.lastUpdate = ?\n" +                //09
-                                 "    ,a.lastUpdateBy = ?\n" +              //10
-                                 "    ,ci.city = ?\n" +                     //11
-                                 "    ,ci.lastUpdate = ?\n" +               //12
-                                 "    ,ci.lastUpdateBy  = ?\n" +            //13
-                                 "    ,co.country = ?\n" +                  //14
-                                 "    ,co.lastUpdate = ?\n" +               //15
-                                 "    ,co.lastUpdateBy = ?\n" +             //16
-                                 "WHERE \n" +                               
-                                 "    c.customerId = ? AND\n" +             //17
+             
+            String queryString = "UPDATE customer c, address a, city ci, country co " +                      
+                                 "SET " +                                  
+                                 "    c.customerName = ?," +              //01
+                                 "    c.active = ?," +                    //02
+                                 "    c.lastUpdate = ?," +                //03
+                                 "    c.lastUpdateBy = ?," +              //04
+                                 "    a.address = ?," +                   //05
+                                 "    a.address2 = ?," +                  //06
+                                 "    a.postalCode = ?," +                //07
+                                 "    a.phone = ?," +                     //08
+                                 "    a.lastUpdate = ?," +                //09
+                                 "    a.lastUpdateBy = ?," +              //10
+                                 "    ci.city = ?," +                     //11
+                                 "    ci.lastUpdate = ?," +               //12
+                                 "    ci.lastUpdateBy  = ?," +            //13
+                                 "    co.country = ?," +                  //14
+                                 "    co.lastUpdate = ?," +               //15
+                                 "    co.lastUpdateBy = ? " +             //16
+                                 "WHERE " +                               
+                                 "    c.customerId = ? AND " +            //17
                                  "    c.addressId = a.addressId AND\n" +    
                                  "    a.cityId = ci.cityId AND\n" +         
                                  "    ci.countryId = co.countryId;";        
              
-            PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
-            
-            ZoneId utcZone = ZoneId.of("UTC");            
-            Timestamp utcTimeStamp = Timestamp.from(LocalDateTime
-                    .now().atZone(utcZone).toInstant());
-            
+            PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);           
+            Timestamp utcTimestampNow = Utils.convertLocaLDateTimeToUtc(LocalDateTime.now());            
             String userName = UserClass.getInstance().getUserName();
                       
             stmt.setString(1, customer.getCustName());
             stmt.setBoolean(2, customer.getActive());
-            stmt.setTimestamp(3, utcTimeStamp);
+            stmt.setTimestamp(3, utcTimestampNow); //customer lastUpdate 
             stmt.setString(4, userName);
             stmt.setString(5, customer.getAddr1());
             stmt.setString(6, customer.getAddr2());
             stmt.setString(7, customer.getPostalCode());
             stmt.setString(8, customer.getPhone());
-            stmt.setTimestamp(9, utcTimeStamp);
+            stmt.setTimestamp(9, utcTimestampNow); //address lastUpdate
             stmt.setString(10, userName);
             stmt.setString(11, customer.getCity());
-            stmt.setTimestamp(12, utcTimeStamp);
+            stmt.setTimestamp(12, utcTimestampNow); //city lastUpdate
             stmt.setString(13, userName);
             stmt.setString(14, customer.getCountry());
-            stmt.setTimestamp(15, utcTimeStamp);
+            stmt.setTimestamp(15, utcTimestampNow); //country lastUpdate
             stmt.setString(16, userName);
             stmt.setInt(17, customer.getCustID());
             
             sql.executeUpdateQuery(stmt);
+            
+            Customer.getCustomers();
         }
         catch (SQLException e)
         {
-            System.out.println(e.getMessage());
+            BussApptMgntSyst.logger.log(Level.SEVERE, e.getMessage());
+            System.err.println(e.getMessage());
         }                     
     }
     
@@ -270,13 +298,22 @@ public class Customer //extends Address
         return this.getCustID() + this.getCustName() + this.getCity() + this.getCountry();
     }
     
-    public static int getCustomerId(String customerName)
+    public static int getCustomerIdFromName(String customerName)
     {
        Customer cust = BussApptMgntSyst.customers.stream()
                 .filter(c -> customerName.equals(c.getCustName()))
                 .findFirst()
                 .get();
        return cust.getCustID();
+    }
+    
+    public static String getCustomerNameFromId(int custId)
+    {
+        Customer cust = BussApptMgntSyst.customers.stream()
+                .filter(c -> custId == c.getCustID())
+                .findFirst()
+                .get();
+        return cust.getCustName();
     }
     
 }

@@ -6,6 +6,7 @@
 package Controller_View;
 
 import java.net.URL;
+import java.time.LocalTime;
 import java.util.ResourceBundle;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -45,19 +46,20 @@ public class ScheduleViewControllerTest
     {
     }
 
-    /**
-     * Test of initialize method, of class ScheduleViewController.
-     */
+    
     @Test
-    public void testInitialize()
+    public void testparseTimeField()
     {
-        System.out.println("initialize");
-        URL url = null;
-        ResourceBundle rb = null;
+        //assign        
+        int hour = 12;
+        int min = 00;
+        String period = "AM";
         ScheduleViewController instance = new ScheduleViewController();
-        instance.initialize(url, rb);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        //act
+        LocalTime actual = instance.parseTimeField(hour, min, period);
+        //assert
+        assertEquals(LocalTime.of(00, 00), actual);
     }
     
 }
+

@@ -2,8 +2,8 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2018-02-21T22:18:16</date>
-  <millis>1519280296878</millis>
+  <date>2018-02-24T15:08:01</date>
+  <millis>1519513681625</millis>
   <sequence>0</sequence>
   <logger>Model</logger>
   <level>INFO</level>
@@ -13,8 +13,8 @@
   <message>Application launch</message>
 </record>
 <record>
-  <date>2018-02-21T22:18:20</date>
-  <millis>1519280300051</millis>
+  <date>2018-02-24T15:08:05</date>
+  <millis>1519513685780</millis>
   <sequence>1</sequence>
   <logger>Controller_View</logger>
   <level>INFO</level>
@@ -22,16 +22,5 @@
   <method>login</method>
   <thread>13</thread>
   <message>Login Successful: [userID: 1, userName: test]</message>
-</record>
-<record>
-  <date>2018-02-21T22:18:37</date>
-  <millis>1519280317255</millis>
-  <sequence>2</sequence>
-  <logger>Controller_View.RootViewController</logger>
-  <level>INFO</level>
-  <class>Controller_View.RootViewController</class>
-  <method>lambda$null$1</method>
-  <thread>13</thread>
-  <message>Logout Successful: [userID: 1, userName: test]</message>
 </record>
 </log>

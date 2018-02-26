@@ -12,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  *
@@ -28,7 +29,7 @@ public class SqlHelperClass
     
     public SqlHelperClass() //throws SQLException
     {
-        //establishSqlConnenction();
+        establishSqlConnenction();
     }
     
     public static Connection getConnection()
@@ -41,90 +42,70 @@ public class SqlHelperClass
         try
         {
             connect(); 
-            if (conn.isClosed())
-                System.err.println("connection is closed @ SqlHelperClass line 41");
+//            if (conn.isClosed())
+//                throw new SQLException("");
+//                System.err.println("connection is closed @ SqlHelperClass line 41");
         }
 
         catch (SQLException e)
         {
-            System.out.println("SQLException: "+e.getMessage()); 
-            System.out.println("SQLState: "+e.getSQLState()); 
-            System.out.println("VendorError: "+e.getErrorCode());            
-        }
-        
-//        catch (ClassNotFoundException e)
-//        {
-//            System.out.println(e.getMessage());
-//        }                        
+            BussApptMgntSyst.logger.log(Level.SEVERE, e.getMessage());
+            System.out.println("SQLException: "+ e.getMessage()); 
+            Utils.displayAlertError("SQL Connection Error", "Unable to establish a connection with the server."
+                    + "\nReview the log file and try again.");
+        }                             
     }
-    
-    public ResultSet executeQuery(String queryString) 
-    {
-        establishSqlConnenction();
 
-        try 
-        {        
-            PreparedStatement stmt = conn.prepareStatement(queryString);
-            ResultSet rs = stmt.executeQuery();
-            
-            return rs;
-        }  
-        catch (SQLException e)
-        {
-            System.err.println(e.getMessage());
-            return null;
-        }        
-    }
     
     public ResultSet executeQuery(PreparedStatement stmt)
     {
         ResultSet rs = null;
         try
-        {
+        {            
             rs = stmt.executeQuery();            
-        }
-        
+        }        
         catch (SQLException e)
         {
-            System.err.println(e.getMessage());        
+            BussApptMgntSyst.logger.log(Level.SEVERE, e.getMessage());
+            System.err.println(e.getMessage());
+            return null;
         }
         return rs;
     }
     
-    public int executeUpdateQuery(PreparedStatement stmt)
+    /**
+     * Executes an insert, delete, or update query using a prepared statement. 
+     * Returns a ResultSet to the caller.
+     * @param stmt
+     * @return ResultSet
+     * @throws SQLException 
+     */
+    public int executeUpdateQuery(PreparedStatement stmt) throws SQLException
     {        
         try
         {
-            return stmt.executeUpdate();
-            
+            return stmt.executeUpdate();            
         }
         catch (SQLException e)
         {
+            BussApptMgntSyst.logger.log(Level.SEVERE, e.getMessage());
             System.err.println(e.getMessage());
+            
             return 0;
         }                 
     }
     
-    
-    
-//    PreparedStatement stmt = conn.prepareStatement("SELECT * FROM user WHERE userName = ?");
-//    stmt.setString(1, "admin");
-//
-//    ResultSet rs = stmt.executeQuery();
-//
-//
-//    if (rs.next())
-//        System.out.println(rs.getString("userName") + ":" + rs.getString("password"));
     private void connect() throws SQLException
     {
-        try 
+        try
         {
             Connection c = DriverManager.getConnection(url, userName, password);
             conn = c;
         }
         catch (SQLException e)
         {
-            System.out.println(e.getMessage());
+            BussApptMgntSyst.logger.log(Level.SEVERE, e.getMessage());
+            System.err.println(e.getMessage());
             conn.close();
         }
        

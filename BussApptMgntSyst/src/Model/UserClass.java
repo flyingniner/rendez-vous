@@ -5,6 +5,7 @@
  */
 package Model;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -22,41 +23,17 @@ public class UserClass
     
     private UserClass() {};
     
+    public static UserClass getInstance() { return instance; }
     
-    public static UserClass getInstance()
-    {
-        return instance;
-    }
+    private int getUserID() { return this.userID; }
+    private void setUserID(String userID) { this.userID = Integer.parseInt(userID); }
     
-    private void setUserID(String userID)
-    {        
-        this.userID = Integer.parseInt(userID);
-    }
+    public String getUserName() { return this.userName; }    
+    private void setUserName(String userName) { this.userName = userName; }
     
-    private void setUserName(String userName)
-    {
-        this.userName = userName;
-    }
-    
-    private void setUserPassword(int userPassword)
-    {
-        this.userPassword = userPassword;
-    }
-    
-    private int getUserID()
-    {
-        return this.userID;
-    }
-    
-    public String getUserName()
-    {
-        return this.userName;
-    }
-    
-    private int getUserPassword()
-    {
-        return this.userPassword;
-    }
+    private int getUserPassword() { return this.userPassword; }
+    private void setUserPassword(int userPassword) { this.userPassword = userPassword; }
+
     
     /**
      * Checks the database for a matching user. Returns a boolean of the result
@@ -65,17 +42,20 @@ public class UserClass
      * @param password
      * @return TRUE if a match was found and the password matched, otherwise FALSE
      */
-    public static boolean verifyUser(UserClass user, String userName, int password) //throws SQLException
+    public static boolean verifyUser(UserClass user, String userName, int password)
     {
         boolean result = false;
         
-        String queryString = "SELECT 1 userId, userName, password " +
-                    "FROM user WHERE userName = '" + userName +"'";
-        ResultSet rs = null;
+        String queryString = "SELECT userId, userName, password " +
+                    "FROM user WHERE userName = ?;";
+        
         try
-        {
+        {            
             SqlHelperClass sql = new SqlHelperClass();
-            rs = sql.executeQuery(queryString);
+            PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
+            stmt.setString(1, userName);
+            
+            ResultSet rs = sql.executeQuery(stmt);
                        
             if(rs.next()) //query string returns a result
             {
@@ -92,9 +72,9 @@ public class UserClass
             
         }
         catch (SQLException e)
-        {
-            //System.err.println("expection at UserClass line 85");
-            System.err.println(e.getMessage());            
+        {            
+            BussApptMgntSyst.logger.fine(e.getMessage());
+            //System.err.println(e.getMessage());            
         }
 
         return result;

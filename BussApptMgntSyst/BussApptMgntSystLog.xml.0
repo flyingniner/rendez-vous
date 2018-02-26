@@ -1,0 +1,55 @@
+
+Feb 25, 2018 2:54:18 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 1, userName: test]
+Feb 25, 2018 3:40:58 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 25, 2018 3:42:29 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 1, userName: test]
+Feb 25, 2018 3:43:10 PM Model.SqlHelperClass executeUpdateQuery
+WARNING: Duplicate entry '1' for key 'PRIMARY'
+Feb 25, 2018 3:55:50 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 25, 2018 3:56:22 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 25, 2018 3:56:26 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 1, userName: test]
+Feb 25, 2018 3:57:35 PM Model.SqlHelperClass executeUpdateQuery
+WARNING: Duplicate entry '1' for key 'PRIMARY'
+Feb 25, 2018 4:08:37 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 1, userName: test]
+Feb 25, 2018 5:17:56 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 25, 2018 5:18:47 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 25, 2018 5:19:43 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 25, 2018 5:22:57 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 25, 2018 5:23:30 PM Model.UserClass verifyUser
+FINE: You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '?' at line 1
+Feb 25, 2018 5:26:36 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: test]
+Feb 25, 2018 5:48:19 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 25, 2018 5:48:34 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: test]
+Feb 25, 2018 5:55:24 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 2, userName: test]
+Feb 25, 2018 6:11:23 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 25, 2018 6:11:26 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: test]
+Feb 25, 2018 6:12:19 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 2, userName: test]
+Feb 25, 2018 6:18:05 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 25, 2018 6:18:08 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: test]
+Feb 25, 2018 6:31:49 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 2, userName: test]
+Feb 25, 2018 10:34:12 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 25, 2018 10:34:16 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: test]
+Feb 25, 2018 10:35:46 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 2, userName: test]

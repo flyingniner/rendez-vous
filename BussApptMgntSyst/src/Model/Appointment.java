@@ -29,39 +29,38 @@ public class Appointment
 {
     private IntegerProperty appointmentId = new SimpleIntegerProperty();
     private IntegerProperty customerId = new SimpleIntegerProperty();
-    private StringProperty title = new SimpleStringProperty(); 
+    private StringProperty appointmentType = new SimpleStringProperty(); 
     private StringProperty description = new SimpleStringProperty();; //notes
     private ObjectProperty<LocalDateTime> start = new SimpleObjectProperty();
     private ObjectProperty<LocalDateTime> end = new SimpleObjectProperty();
+    private StringProperty userName = new SimpleStringProperty();
     
     public Appointment() {};
     
-    public Appointment(int appiontmentId, int customerId, String title, String notes, LocalDateTime start, LocalDateTime end)
+    public Appointment(int appiontmentId, int customerId, String appointmentType, String notes, 
+            LocalDateTime start, LocalDateTime end, String userName)
     {
         setAppointmentId(appiontmentId);
         setCustomerId(customerId);
-        setTitle(title);
+        setAppointmentType(appointmentType);
         setDescription(notes);
         setStart(start);
         setEnd(end);
-        
+        setUserName(userName);
     }
 
     public static ObservableList<Appointment> getAppointments() throws SQLException
     {
         ObservableList<Appointment> appointments = FXCollections.observableArrayList();        
-        ZoneId utcZoneId = ZoneId.of("UTC");
-        ZoneId sysZoneid = ZoneId.systemDefault();
-                      
-        String queryString = "SELECT * FROM appointment";
+        
+        String queryString = "SELECT * FROM appointment ORDER BY start";
         
         SqlHelperClass sql = new SqlHelperClass();
         
         try
         {
             PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
-           // stmt.setString(0, "appointment");
-            
+           
             ResultSet rs = sql.executeQuery(stmt);
            
             while (rs.next())
@@ -71,157 +70,138 @@ public class Appointment
                 System.out.println();
                 appointments.add(new Appointment(rs.getInt("appointmentId"),
                         rs.getInt("customerId"), 
-                        rs.getString("title"), 
+                        rs.getString("title"), //appointmentType
                         rs.getString("description"), 
-                        rs.getTimestamp("start").toLocalDateTime()
-                                .atZone(utcZoneId)
-                                .withZoneSameInstant(sysZoneid)
-                                .toLocalDateTime(),
-                        rs.getTimestamp("end").toLocalDateTime()
-                                .atZone(utcZoneId)
-                                .withZoneSameInstant(sysZoneid)
-                                .toLocalDateTime()));
+                        Utils.convertUtcToLocalDateTime(rs.getTimestamp("start")),
+                        Utils.convertUtcToLocalDateTime(rs.getTimestamp("end")),
+                        rs.getString("contact")));
             }
            
         }
         catch (SQLException e)
         {
-            System.out.println("sql error in appointment: \n" + e.getMessage());
-            
+            //TODO: handle exepection. Printing out a message is not sufficent)
+            System.out.println("sql error in appointment: \n" + e.getMessage());            
         }
 
         return appointments;
     }
     
-    public static void addAppointmentToDb(Appointment appointment)
+    
+    
+    public static void addAppointmentToDb(Appointment appointment) throws SQLException
     {
-        ZoneId utcZoneId = ZoneId.of("UTC");
-        ZoneId sysZoneid = ZoneId.systemDefault();
-        
-        ZonedDateTime zdtStart = appointment.getStart().atZone(sysZoneid);
-        ZonedDateTime zdtUtcStart = zdtStart.withZoneSameInstant(utcZoneId);
-        LocalDateTime ldtUtcStart = zdtUtcStart.toLocalDateTime();
-        Timestamp startStamp = Timestamp.valueOf(ldtUtcStart);
-                
-
-        String queryString = "INSERT INTO appointment \n"  
-                + "\t(appointmentId\n"
-                + "\t,customerId\n"
-                + "\t,title\n"
-                + "\t,description\n"
-                + "\t,start\n"
-                + "\t,end\n"
-                + "\t,createDate\n"
-                + "\t,createdBy\n"
-                + "\t,lastUpdate\n"
-                + "\t,lastUpdateBy\n"
-                + "\t,location,contact,url)"
+        String queryString = "INSERT INTO appointment "  
+                + "(appointmentId, customerId, title, description, contact, "
+                + "start, end, createDate, createdBy, lastUpdate, "
+                + "lastUpdateBy, location, url)"
                 + "VALUES (\n"
                 + "\t?\n"                       //1 appointmentId
                 + "\t,?\n"                      //2 customerId
-                + "\t,?\n"                      //3 title
+                + "\t,?\n"                      //3 title aka "appointmentType"
                 + "\t,?\n"                      //4 description
-                + "\t,?\n"                      //5 start
-                + "\t,?\n"                      //6 end
-                + "\t,?\n"                      //7 createDate
-                + "\t,?\n"                      //8 createdBy
-                + "\t,?\n"                      //9 lastUpdate
-                + "\t,?\n"                      //10 latUpdatedBy
-                + "\t,?,?,?);";                 //11-13 location,contact,url
+                + "\t,?\n"                      //5 contact aka userName
+                + "\t,?\n"                      //6 start
+                + "\t,?\n"                      //7 end
+                + "\t,?\n"                      //8 createDate
+                + "\t,?\n"                      //9 createdBy
+                + "\t,?\n"                      //10 lastUpdate
+                + "\t,?\n"                      //11 latUpdatedBy
+                + "\t,?,?);";                 //12-13 location,url
+                   
+        SqlHelperClass sql = new SqlHelperClass();
+
+        PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
+
+        String userName = UserClass.getInstance().getUserName();
+
+        stmt.setInt(1, appointment.getAppointmentId());
+        stmt.setInt(2, appointment.getCustomerId());
+        stmt.setString(3, appointment.getAppointmentType());
+        stmt.setString(4, appointment.getDescription());
+        stmt.setString(5, appointment.getUserName());
+        stmt.setTimestamp(6, Utils.convertLocaLDateTimeToUtc(appointment.getStart()));
+        stmt.setTimestamp(7, Utils.convertLocaLDateTimeToUtc(appointment.getEnd()));
+        stmt.setTimestamp(8, Utils.convertLocaLDateTimeToUtc(LocalDateTime.now())); //created date
+        stmt.setString(9, userName);
+        stmt.setTimestamp(10, Utils.convertLocaLDateTimeToUtc(LocalDateTime.now())); //last modified date
+        stmt.setString(11, userName);
+        stmt.setString(12, "");
+        stmt.setString(13, "");
+
+        int result = sql.executeUpdateQuery(stmt);
+        if (result == 0)
+            throw new SQLException("An error occurred while trying to add the appointment.");
+
+        BussApptMgntSyst.appointments = Appointment.getAppointments();            
+    }
+    
+    public static void updateAppointmentInDb(Appointment appointment)
+    {
+        String queryString = "UPDATE appointment \n"          
+                + "SET customerId = ?"            //2
+                + ",title = ?"                 //3
+                + ",description = ?"           //4
+                + ",start = ?"                 //5
+                + ",end = ?"                   //6
+                + ",lastUpdate = ?"            //7
+                + ",lastUpdateBy = ? "         //8
+                + "WHERE appointmentId = ?;";     //9
+                
+                //+ "\t(appointmentId = ? \n"          //1
                    
         SqlHelperClass sql = new SqlHelperClass();
         try
         {
             PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
                                     
-            Timestamp utcTimeStamp = Timestamp.valueOf(LocalDateTime.now()
-                    .atZone(sysZoneid)
-                    .withZoneSameInstant(utcZoneId)
-                    .toLocalDateTime());
-                        
             String userName = UserClass.getInstance().getUserName();
-            
-            //stmt.setString(1, "appointment");
-            stmt.setInt(1, appointment.getNextAppointmentId());
-            stmt.setInt(2, appointment.getCustomerId());
-            stmt.setString(3, appointment.getTitle());
-            stmt.setString(4, appointment.getDescription());
-            stmt.setTimestamp(5, Timestamp.valueOf(appointment.getStart()
-                    .atZone(sysZoneid)
-                    .withZoneSameInstant(utcZoneId)
-                    .toLocalDateTime()
-                    ));
-            stmt.setTimestamp(6, Timestamp.valueOf(appointment.getEnd()
-                    .atZone(sysZoneid)
-                    .withZoneSameInstant(utcZoneId)
-                    .toLocalDateTime()
-                    ));
-            stmt.setTimestamp(7, utcTimeStamp);
-            stmt.setString(8, userName);
-            stmt.setTimestamp(9, utcTimeStamp);
-            stmt.setString(10, userName);
-            stmt.setString(11, "");
-            stmt.setString(12, "");
-            stmt.setString(13, "");
-            
+                       
+//            stmt.setInt(1, appointment.getAppointmentId());
+            stmt.setInt(1, appointment.getCustomerId());
+            stmt.setString(2, appointment.getAppointmentType());
+            stmt.setString(3, appointment.getDescription());
+            stmt.setTimestamp(4, Utils.convertLocaLDateTimeToUtc(appointment.getStart()));
+            stmt.setTimestamp(5, Utils.convertLocaLDateTimeToUtc(appointment.getEnd()));
+            stmt.setTimestamp(6, Utils.convertLocaLDateTimeToUtc(LocalDateTime.now()));
+            stmt.setString(7, userName);            
+            stmt.setInt(8,appointment.getAppointmentId());
             
             sql.executeUpdateQuery(stmt);
+            BussApptMgntSyst.appointments = Appointment.getAppointments();
             
         } catch (SQLException e)
         {
+            //TODO: handle exepection. Printing out a message is not sufficent)
             System.out.println("sql add error in appiontment: \n" + e.getMessage());
+            System.out.println(e.getSQLState());
         }                
     }
-    
-        static void updateAppointmentInDb(Appointment appointment)
-    {
-        String queryString = "UPDATE ? \n"          //0
-                + "SET "                            
-                + "\tappointmentId = ? \n"          //1
-                + "\t,customerId = ? \n"            //2
-                + "\t,title = ? \n"                 //3
-                + "\t,description = ? \n"           //4
-                + "\t,start = ? \n"                 //5
-                + "\t,end = ? \n"                   //6
-//                + "\t,createDate = ? \n"            //7
-//                + "\t,createdBy = ? \n"             //8
-                + "\t,lastUpdate = ? \n"            //7
-                + "\t,lastUpdateBy = ?) \n"         //8
-                + "\tWHERE ? = ?;";                 //9 & 10
-                
-                   
-        SqlHelperClass sql = new SqlHelperClass();
-        try
-        {
-            PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
-            
-            ZoneId utcZone = ZoneId.of("UTC");            
-            Timestamp utcTimeStamp = Timestamp.from(LocalDateTime
-                    .now().atZone(utcZone).toInstant());
-                        
-            String userName = UserClass.getInstance().getUserName();
-            
-            stmt.setString(0, "appointment");
-            stmt.setInt(1, appointment.getAppointmentId());
-            stmt.setInt(2, appointment.getCustomerId());
-            stmt.setString(3, appointment.getTitle());
-            stmt.setString(4, appointment.getDescription());
-            stmt.setTimestamp(5, Timestamp.from(appointment.getStart().atZone(utcZone).toInstant()));
-            stmt.setTimestamp(6, Timestamp.from(appointment.getEnd().atZone(utcZone).toInstant()));
-//            stmt.setTimestamp(7, utcTimeStamp);
-//            stmt.setString(8, userName);
-            stmt.setTimestamp(7, utcTimeStamp);
-            stmt.setString(8, userName);
-            stmt.setString(9,"appointmentId");
-            stmt.setInt(10,appointment.getAppointmentId());
-            
-            sql.executeQuery(stmt);
-            
-        } catch (SQLException e)
-        {
-            System.out.println("sql add error in appiontment: \n" + e.getMessage());
-        }                
-    }
+        
+        
+   public static void removeAppointment(Appointment appointment)
+   {
+       String queryString = "DELETE FROM appointment \n"
+               + "\t WHERE appointmentId = ?;";             
+       
+       SqlHelperClass sql = new SqlHelperClass();
+       
+       try
+       {
+           PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
+           
+           stmt.setInt(1, appointment.getAppointmentId());
+           
+           sql.executeUpdateQuery(stmt);
+           BussApptMgntSyst.appointments = getAppointments();
+           
+       } catch (SQLException e)
+       {
+           //TODO: handle exepection. Printing out a message is not sufficent)
+           System.out.println(e.getMessage());
+       }
+       
+   }
     
     public IntegerProperty appointmentIdProperty() { return appointmentId; }
     public void setAppointmentId(int appointmentId) { this.appointmentId.set(appointmentId); }
@@ -232,9 +212,9 @@ public class Appointment
     public void setCustomerId(int customer) { this.customerId.set(customer); }
     public int getCustomerId() { return this.customerId.get(); }
     
-    public StringProperty titleProperty() { return title; }
-    public void setTitle(String title) { this.title.set(title); }
-    public String getTitle() { return this.title.get(); }
+    public StringProperty appointmentTypeProperty() { return appointmentType; }
+    public void setAppointmentType(String appointmentType) { this.appointmentType.set(appointmentType); }
+    public String getAppointmentType() { return this.appointmentType.get(); }
 
     public StringProperty descriptionProperty() { return description; }
     public void setDescription(String description) { this.description.set(description); }
@@ -248,12 +228,19 @@ public class Appointment
     public void setEnd(LocalDateTime end) { this.end.set(end); }
     public LocalDateTime getEnd() { return this.end.get(); }
     
-    private int getNextAppointmentId()
+    public StringProperty userNameProperty() { return userName; }
+    public void setUserName(String userName) { this.userName.set(userName); }
+    public String getUserName() { return this.userName.get(); }
+    
+    public int getNextAppointmentId()
     {
-        Appointment apt = BussApptMgntSyst.appointments.stream()
-            .max((id1, id2) -> Integer.compare(id1.getAppointmentId(), id2.getAppointmentId())).get();
+        Appointment apt;
+        if (BussApptMgntSyst.appointments.isEmpty())
+            return 1;
+        else        
+            apt = BussApptMgntSyst.appointments.stream()
+                .max((id1, id2) -> Integer.compare(id1.getAppointmentId(), id2.getAppointmentId())).get();            
+        
         return apt.getAppointmentId() + 1;
     }
-    
-    
 }

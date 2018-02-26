@@ -75,7 +75,7 @@ public class LoginViewController implements Initializable
         
         btnCancel.setOnAction((event) ->
         {
-            System.exit(0);//todo
+            System.exit(0);
         });
         
         txtUser.setOnMouseClicked((event) ->

@@ -41,11 +41,10 @@ public class BussApptMgntSyst extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
-        locale = Locale.getDefault();
-        
-        
+        locale = Locale.getDefault();               
         //locale = new Locale("es","VE");        
                 
+        
         ResourceBundle rb = ResourceBundle.getBundle("Model.BAMS", locale);
         FXMLLoader loader = new FXMLLoader(getClass().getResource(FxmlView.ROOT.getFxmlFile()), rb);
                 
@@ -65,12 +64,25 @@ public class BussApptMgntSyst extends Application
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException
-    {        
+    {   
+//        FileHandler handler = new FileHandler("./BussApptMgntSystLog.xml");        
+//        logger = Logger.getLogger("Model");
+//        logger.addHandler(handler);        
+//        logger.setLevel(Level.ALL);
+//        logger.log(Level.INFO, "Application launch");
+        
+        
+        FileHandler handler = new FileHandler("./BussApptMgntSystLog.xml",10000,2, true);        
+        SimpleFormatter formatter = new SimpleFormatter();
+        handler.setFormatter(formatter);
+        
         logger = Logger.getLogger("Model");
-        logger.addHandler(new FileHandler("./BussApptMgntSystLog"));
-        //logger.addHandler(new FileHandler("./ModelLog.xml",20000, 2, true));
+        logger.addHandler(handler);        
         logger.setLevel(Level.ALL);
         logger.log(Level.INFO, "Application launch");
+        
+        
+        
         launch(args);  
 
     }    

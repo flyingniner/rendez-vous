@@ -14,6 +14,7 @@ import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -68,37 +69,35 @@ public class Address extends Location
     
     public int getAddressId() { return this.addressId.get(); }        
     
-    public void setAddress1(String addr1) 
+    public void setAddress1(String addr1) throws IllegalArgumentException
     {
-        try
-        {
             if(addr1.length()==0 || addr1==null)
                 throw new IllegalArgumentException("Address may not be left blank.");
             if(addr1.length()>50)
                 throw new IllegalArgumentException("Address may not exceed 50 charachters.");
             this.address1.set(addr1);    
-        }
-        catch (IllegalArgumentException e)
-        {
-            //TODO
-        }        
+//        }
+//        catch (IllegalArgumentException e)
+//        {
+//            //TODO
+//        }        
     }
     
     
     public String getAddress1() { return this.address1.get(); }
         
-    public void setAddress2(String addr2) 
+    public void setAddress2(String addr2) throws IllegalArgumentException
     { 
-        try
-        {
+//        try
+//        {
             if(addr2.length()>50)
                 throw new IllegalArgumentException("Address may not exceed 50 charachters.");
             this.address2.set(addr2); 
-        }
-        catch(IllegalArgumentException e)
-        {
-            //TODO
-        }                
+//        }
+//        catch(IllegalArgumentException e)
+//        {
+//            //TODO
+//        }                
     }
     
     
@@ -121,160 +120,15 @@ public class Address extends Location
     
     public String getPostalCode() { return this.postalCode.get(); }   
     
-    public static ObservableList<Address> getCityCountry()
-    {
-        ObservableList<Address> results = FXCollections.observableArrayList();
-        
-        //TODO: this query is wrong...
-        String queryString = "SELECT co.country, ci.city "
-                + "FROM country co, city ci "
-                + "WHERE co.countryId = ci.countryId;";
-
-     
-        try
-        {
-            SqlHelperClass sql = new SqlHelperClass();
-            ResultSet rs = sql.executeQuery(queryString);
-
-            while(rs.next())
-            {                
-                results.add(new Address(rs.getString("city"),rs.getString("country")));
-            }
-        }
-        catch (SQLException e)
-        {
-            System.err.println(e.getMessage());
-        }
-        return results;
-    }
-}
-
-
-
-
-//class CityClass extends CountryClass
-//{
-//    private IntegerProperty cityId = new SimpleIntegerProperty();
-//    private StringProperty cityName = new SimpleStringProperty();
-//    protected CountryClass country = new CountryClass();
-//    
-//    public String getCityName() { return this.cityName.get(); }
-//    protected void setCityName(String cityName) { this.cityName.set(cityName); }    
-//    protected StringProperty cityProperty() { return this.cityName; }
-//    
-//    /**
-//     * Queries the DB and instantiates ObservableList<Pair<String,String>> where
-//     * the key = country and value = city.
-//     */
-//    public static void getAllLocations()
+//    public static ObservableList<Address> getCityCountry()
 //    {
-//        //ObservableList<String> allCities = FXCollections.observableArrayList();
-//        //ObservableList<Map<String, String>> cityCountryPairs = FXCollections.observableArrayList();        
+//        ObservableList<Address> results = FXCollections.observableArrayList();
+//        
+//        //TODO: this query is wrong...
 //        String queryString = "SELECT co.country, ci.city "
 //                + "FROM country co, city ci "
 //                + "WHERE co.countryId = ci.countryId;";
-//      
-//        
-////String queryString = "SELECT city FROM city ORDER BY 1;";
 //
-//
-//        try
-//        {
-//            SqlHelperClass sql = new SqlHelperClass();
-//            ResultSet rs = sql.executeQuery(queryString);
-//            
-//            while(rs.next())
-//            {
-////                Map<String, String> map = new HashMap<String, String>();
-//                map.put(rs.getString("country"), rs.getString("city"));
-//                //rs.getString("country"),rs.getString("city"));
-//               // cityCountryPairs.add(map);
-//                //allCities.add(rs.getString("city"));
-//            }            
-//        }
-//        catch (SQLException e)
-//        {
-//            System.err.println(e.getMessage());
-//        }
-////        BussApptMgntSyst.cityCountryPairs = cityCountryPairs;        
-//            BussApptMgntSyst.cityCountryPairs = map;        
-//    }
-//    
-//    
-//    
-//    public static void AddCityToDb(String cityName, String countryName)
-//    {
-//        String nextCityIdQuery = "SELECT cityId FROM city ORDER BY cityId DESC LIMIT 1;";        
-//        String countrySelectQuery = "SELECT countryId FROM country WHERE country = ? LIMIT 1;";
-//                
-//        String cityUpdateQuery = "INSERT INTO city "
-//                + "(cityid, city, countryId,createDate,createdBy,lastUpdate,lastUpdateBy)"
-//                + "VALUES (?,?,?,?,?,?,?)";
-//        
-//        int nextCityId = 0;
-//        int countryId = 0;
-//        
-//        try
-//        {
-//            SqlHelperClass sql = new SqlHelperClass();
-//            
-//            PreparedStatement stmtNextCityid = SqlHelperClass.getConnection().prepareStatement(nextCityIdQuery);
-//            ResultSet rsCityId = sql.executeQuery(stmtNextCityid);
-//            
-//            while (rsCityId.next())
-//            {
-//                nextCityId = rsCityId.getInt("cityId")+1;
-//            }
-//
-//
-//            //get countryId from DB
-//            PreparedStatement stmtCountry = SqlHelperClass.getConnection().prepareStatement(countrySelectQuery);
-//            stmtCountry.setString(1, countryName);
-//            ResultSet rsCountryId = sql.executeQuery(stmtCountry);
-//            
-//            while (rsCountryId.next())
-//            {
-//                countryId = rsCountryId.getInt("countryId");
-//            }
-//            
-//            PreparedStatement stmtCity = SqlHelperClass.getConnection().prepareStatement(cityUpdateQuery);
-//            
-//            ZoneId utcZone = ZoneId.of("UTC");            
-//            Timestamp utcTimeStamp = Timestamp.from(LocalDateTime
-//                    .now().atZone(utcZone).toInstant());
-//            
-//            stmtCity.setInt(1, nextCityId);
-//            stmtCity.setString(2,cityName);
-//            stmtCity.setInt(3, countryId);
-//            stmtCity.setTimestamp(4, utcTimeStamp);
-//            stmtCity.setString(5, UserClass.getInstance().getUserName());
-//            stmtCity.setTimestamp(6, utcTimeStamp);
-//            stmtCity.setString(7, UserClass.getInstance().getUserName());            
-//            sql.executeUpdateQuery(stmtCity);
-//            
-//        }
-//        catch (SQLException e)
-//        {
-//            System.err.println(e.getMessage());
-//        }
-//    }
-//        
-//}
-//
-//class CountryClass
-//{
-//    private IntegerProperty countryId = new SimpleIntegerProperty();
-//    private StringProperty countryName = new SimpleStringProperty();     
-//    
-//    public String getCountryName() { return this.countryName.get(); }
-//    protected StringProperty countryNameProperty() { return this.countryName; }
-//    protected void setCountryName(String countryName) { this.countryName.set(countryName); }   
-//    
-//    public static void getAllCountries()
-//    {
-//        ObservableList<String> allCountries = FXCollections.observableArrayList();
-//        
-//        String queryString = "SELECT country FROM country ORDER BY 1;";
 //     
 //        try
 //        {
@@ -282,56 +136,129 @@ public class Address extends Location
 //            ResultSet rs = sql.executeQuery(queryString);
 //
 //            while(rs.next())
-//            {
-//                allCountries.add(rs.getString("country"));
-//            }            
+//            {                
+//                results.add(new Address(rs.getString("city"),rs.getString("country")));
+//            }
 //        }
 //        catch (SQLException e)
 //        {
 //            System.err.println(e.getMessage());
 //        }
-//        BussApptMgntSyst.countries = allCountries;        
+//        return results;
 //    }
-//    
-//    public static void addCountryToDb(String countryName)
-//    {
-//        String nextCountryIdQuery = "SELECT countryId FROM country ORDER BY countryId DESC LIMIT 1;";
-//        int nextCountryId = 0;
-//        
-//        String countryUpdateQuery = "INSERT INTO country "
-//                + "(countryId, country, createDate, createdBy, lastUpdate, lastUpdateBy) "
-//                + "(?,?,?,?,?,?)";
-//        
-//        SqlHelperClass sql = new SqlHelperClass();
-//                
-//        try
-//        {
-//            PreparedStatement stmtNextCountryId = SqlHelperClass.getConnection().prepareStatement(nextCountryIdQuery);
-//            ResultSet rsCountryId = sql.executeQuery(stmtNextCountryId);
-//            
-//            while (rsCountryId.next())
-//            {
-//                nextCountryId = rsCountryId.getInt("countryId")+1;
-//            }
-//
-//            PreparedStatement stmtCountryUpdate = SqlHelperClass.getConnection().prepareStatement(nextCountryIdQuery);
-//
-//            ZoneId utcZone = ZoneId.of("UTC");            
-//            Timestamp utcTimeStamp = Timestamp.from(LocalDateTime
-//                    .now().atZone(utcZone).toInstant());
-//            
-//            stmtCountryUpdate.setInt(1, nextCountryId);
-//            stmtCountryUpdate.setString(2,countryName);
-//            stmtCountryUpdate.setTimestamp(3, utcTimeStamp);
-//            stmtCountryUpdate.setString(4, UserClass.getInstance().getUserName());
-//            stmtCountryUpdate.setTimestamp(5, utcTimeStamp);
-//            stmtCountryUpdate.setString(6, UserClass.getInstance().getUserName());            
-//            sql.executeUpdateQuery(stmtCountryUpdate);            
-//        }
-//        catch(SQLException e)
-//        {
-//           System.err.println(e.getMessage());
-//        }
-//    }
-//    
-//}
+    
+    /**
+     * Inserts a new address to the database and returns the address Id assigned
+     * to the address. 
+     * @param cust The Customer object
+     * @return The addressId
+     * @throws SQLException 
+     */
+    public static int addAddressToDB(Customer cust) throws SQLException
+    {
+        int nextAddressId = getNextAddressIdFromDB();
+        
+        String queryString = "INSERT INTO address "
+                + "VALUES (?,"      //addressId  (1)
+                + "?,"              //address    (2)
+                + "?,"              //address2   (3)
+                + "?,"              //cityId     (4) 
+                + "?,"              //postalCode (5)
+                + "?,"              //phone      (6)
+                + "?,"              //createDate (7)
+                + "?,"              //createdBy  (8)
+                + "?,"              //lastUpdate (9)
+                + "?);";            //lastUpdateBy (10)
+
+            SqlHelperClass sql = new SqlHelperClass();
+            
+            PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
+            
+
+            stmt.setInt(1, nextAddressId);
+            stmt.setString(2, cust.getAddr1());
+            stmt.setString(3, cust.getAddr2());
+            stmt.setInt(4, getCityIdFromDb(cust.getCity(), cust.getCountry()));
+            stmt.setString(5, cust.getPostalCode());
+            stmt.setString(6, cust.getPhone());
+            stmt.setTimestamp(7, Utils.convertLocaLDateTimeToUtc(LocalDateTime.now()));
+            stmt.setString(8, UserClass.getInstance().getUserName());
+            stmt.setTimestamp(9, Utils.convertLocaLDateTimeToUtc(LocalDateTime.now()));
+            stmt.setString(10, UserClass.getInstance().getUserName());
+                        
+            int result = sql.executeUpdateQuery(stmt);    
+            if (result == 0)
+                throw new SQLException("An error occured while trying to save the address."
+                        + "\nReview the log for more details.");
+            return nextAddressId;              
+    }
+    
+    /**
+     * Queries the database and returns the next available addressId from the
+     * address table. If an exception is thrown it is caught and logged and the
+     * method returns a zero (0) to the caller.
+     
+     * @return The addressId as an integer.
+     */
+    private static int getNextAddressIdFromDB()
+    {
+        int result = 0;
+        
+        String queryString = "SELECT addressId FROM address ORDER BY 1 DESC LIMIT 1;";
+        try
+        {
+            SqlHelperClass sql = new SqlHelperClass();
+            PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
+            ResultSet rs = sql.executeQuery(stmt);
+            
+            while (rs.next())
+            {
+                result = rs.getInt("addressId");
+            }
+            
+            return result +1;
+                
+        } catch (SQLException e)
+        {
+            BussApptMgntSyst.logger.log(Level.SEVERE, e.getMessage());
+            return 0;
+        }
+    }
+    
+    /**
+     * Queries the database and returns the cityId.
+     * @param cityName
+     * @param countryName
+     * @return cityId
+     */
+    private static int getCityIdFromDb(String cityName, String countryName)
+    {
+        int result = 0;
+        
+        String queryString = "SELECT cityId FROM city WHERE city = "
+                + "? AND countryId = (SELECT countryId from country WHERE country = ?);";
+        try
+        {
+            SqlHelperClass sql = new SqlHelperClass();
+            PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
+            
+            stmt.setString(1, cityName);
+            stmt.setString(2, countryName);
+                    
+            ResultSet rs = sql.executeQuery(stmt);
+            
+            while (rs.next())
+            {
+                result = rs.getInt("cityId");
+            }
+            
+            return result;
+                
+        } catch (SQLException e)
+        {
+            BussApptMgntSyst.logger.log(Level.WARNING, e.getMessage());
+            return 0;
+        }
+    }    
+}
+

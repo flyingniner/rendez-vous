@@ -5,8 +5,10 @@
  */
 package Model;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -36,28 +38,34 @@ public class Location
     protected StringProperty countryNameProperty() { return this.countryName; }
     protected StringProperty cityNameProperty() { return this.cityName; }
     
+    /**
+     * Loads the city - country combinations.
+     */
     public static void loadlLocations()
     {
         String queryString = "SELECT co.country, ci.city "
                 + "FROM country co, city ci "
                 + "WHERE co.countryId = ci.countryId;";
+        
         ObservableList<Location> results = FXCollections.observableArrayList();
+        
         try
-        {
-          SqlHelperClass sql = new SqlHelperClass();
-            ResultSet rs = sql.executeQuery(queryString);
+        {            
+            SqlHelperClass sql = new SqlHelperClass();
+            PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
+            ResultSet rs = stmt.executeQuery(queryString);
 
             while(rs.next())
             {                
-//                String country = ;
-//                String city = ;
-                
                 results.add(new Location(rs.getString("country"),rs.getString("city")));
             }
         }
         catch (SQLException e)
         {
+            BussApptMgntSyst.logger.log(Level.SEVERE, e.getMessage());
             System.err.println(e.getMessage());
+            Utils.displayAlertError("SQL ERROR", "An error occurred while getting information from the database."
+                    + "\nPlease review the the log file for more information and try again.");
         }
         
         BussApptMgntSyst.locations = results;

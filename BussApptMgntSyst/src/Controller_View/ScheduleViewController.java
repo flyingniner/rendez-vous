@@ -8,17 +8,24 @@ package Controller_View;
 import Model.Appointment;
 import Model.BussApptMgntSyst;
 import Model.Customer;
+import Model.UserClass;
+import Model.Utils;
 import java.net.URL;
+import java.sql.SQLException;
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.ParsePosition;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toList;
 import java.util.stream.IntStream;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -50,13 +57,13 @@ public class ScheduleViewController implements Initializable
     AnchorPane root = BussApptMgntSyst.root;
     AnchorPane child;
     
-    @FXML private Label lblTitle;
+    @FXML private Label lblAptType;
     @FXML private Label lblFromDate;
     @FXML private Label lblToDate;
     @FXML private Label lblCustomer;
     @FXML private Label lblStartTime;
     @FXML private Label lblEndTime;
-    @FXML private TextField txtTitle;
+    @FXML private ChoiceBox chAppointmentType;
     @FXML private DatePicker dtFromDate;
     @FXML private DatePicker dtToDate;
     @FXML private ComboBox<String> chStartHour;
@@ -65,66 +72,264 @@ public class ScheduleViewController implements Initializable
     @FXML private ComboBox<String> chEndHour;
     @FXML private ComboBox<String> chEndMinute;
     @FXML private ComboBox<String> chEndAmPm;
-    @FXML private ComboBox cmbCustomer;
+    @FXML private ComboBox<String> cmbCustomer;
     @FXML private TextArea txtNotes;
     @FXML private Button btnSave;
     @FXML private Button btnDelete;
     @FXML private Button btnClose;
+    @FXML private Button btnClear;
     @FXML private TableView<Appointment> tblCalendar;
     @FXML private TableColumn<Appointment, LocalDateTime> colStartDate;
     @FXML private TableColumn<Appointment, LocalDateTime> colEndDate;    
     @FXML private TableColumn<Appointment, String> colCustomerName;
-    @FXML private TableColumn<Appointment, String> colTitle;
+    @FXML private TableColumn<Appointment, String> colAppointmentType;
+    
+    Appointment selectedAppointment = null;
             
     
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
+        //load data elements
         loadCustomers();
         loadTimeFields();
+        setAppointmentOptions();
         loadAppointmentTable();
-        btnClose.setOnAction((event) -> handleCloseButton());    
-        cmbCustomer.setItems(setCustComboBox());
-        btnSave.setOnAction(x -> {
-           handleSaveButton();
-           sceneMgr.displayScene(root, child, "Main");
-        });
         
+        //assign actions and listeners to form controls
+        btnSave.setOnAction(x -> handleSaveButton());        
+        btnDelete.setOnAction(x -> handleDeleteButton());        
+        btnClose.setOnAction((event) -> handleCloseButton());            
+        btnClear.setOnAction(x -> handleClearButton());        
+        cmbCustomer.setItems(setCustComboBox());
+        
+        tblCalendar.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) ->
+        {
+            if (newValue!=null)
+            {
+                selectedAppointment = new Appointment();
+                selectedAppointment.setAppointmentId(newValue.getAppointmentId());
+                selectedAppointment.setCustomerId(newValue.getCustomerId());
+                selectedAppointment.setDescription(newValue.getDescription());
+                selectedAppointment.setEnd(newValue.getEnd());
+                selectedAppointment.setStart(newValue.getStart());
+                selectedAppointment.setAppointmentType(newValue.getAppointmentType());
+                selectedAppointment.setUserName(newValue.getUserName());
+                populateAppointmentFields();                  
+            }
+        });
+                                
+    }
+    
+    private void setAppointmentOptions()
+    {
+        ObservableList<String> list = FXCollections.observableArrayList();
+        list.addAll("Referral", "Sales Call", "Service Call", "Weekly Follow-up");
+        chAppointmentType.setItems(list);        
     }
     
     private void handleSaveButton()
     {
-        //TODO:
-            //check that appointment does not overlap another appointment        
+        String aptType = null;
+        String custName = null;
+//        int startHour, startMinute, endHour, endMinute;
+//        LocalTime startTime = null;
+//        LocalTime endTime = null;
+        LocalDateTime startDateTime = null;
+        LocalDateTime endDateTime = null;
+        String notes;
+        
+        try
+        {   
+            //exception controls
+            if((startDateTime = getStartDateTime())==null)
+                throw new IllegalArgumentException("Please pick a valid start date/time.");
+                        
+            if((endDateTime = getEndDateTime())==null)
+                throw new IllegalArgumentException("Please pick a valid end date/time.");
+                        
+            if ((startDateTime.toLocalTime().isBefore(LocalTime.of(8, 0))) ||
+                    endDateTime.toLocalTime().isAfter(LocalTime.of(17,0)))
+                throw new IllegalArgumentException("Appointments must be maded with the business hours of 8:00AM and 5:00PM.");
+                        
+            if ((aptType = chAppointmentType.getValue().toString())==null || aptType.trim().isEmpty())
+                throw new IllegalArgumentException("The appointment type must not be left blank.");
+                        
+            if (endDateTime.isBefore(startDateTime))
+                throw new IllegalArgumentException("The end date/time must be later than the start date/time.");
+
+            if ((cmbCustomer.getSelectionModel().getSelectedItem())==null || 
+                    (custName = cmbCustomer.getSelectionModel().getSelectedItem().toString()).isEmpty())
+                throw new IllegalArgumentException("You must include a customer to save this appointment.");
+
+            if ((notes = txtNotes.getText().trim()).isEmpty())
+                notes = "";
+            else 
+                notes = txtNotes.getText();
+            
+            //create a new appointment object
+            Appointment newAppointment = new Appointment();
+            
+            newAppointment.setAppointmentId(newAppointment.getNextAppointmentId());
+            newAppointment.setCustomerId(Customer.getCustomerIdFromName(custName));
+            newAppointment.setAppointmentType(aptType);
+            newAppointment.setDescription(notes);
+            newAppointment.setStart(startDateTime);
+            newAppointment.setEnd(endDateTime);
+            newAppointment.setUserName(UserClass.getInstance().getUserName());
+
+                        
+            if (selectedAppointment != null)
+            {
+                if (Utils.displayAlertConfirmation("Confirm Overwrite?", "You are about to save changes to an existing appointment."
+                        + "\nDo you want to continue?" ))
+                {
+                    int selId = selectedAppointment.getAppointmentId();
+                    
+//                    for (Appointment apt : BussApptMgntSyst.appointments)
+//                    {
+//                        if (apt.equals(selectedAppointment))
+//                            BussApptMgntSyst.appointments.remove(apt);
+//                    }
+                    
+                    BussApptMgntSyst.appointments.removeIf(item -> item.equals(selectedAppointment));
+                    
+                    checkForOverlap(newAppointment);                    
+                
+                    selectedAppointment.setAppointmentId(selId);
+                    selectedAppointment.setCustomerId(newAppointment.getCustomerId());
+                    selectedAppointment.setAppointmentType(newAppointment.getAppointmentType());
+                    selectedAppointment.setDescription(newAppointment.getDescription());
+                    selectedAppointment.setStart(newAppointment.getStart());
+                    selectedAppointment.setEnd(newAppointment.getEnd());
+                    selectedAppointment.setUserName(newAppointment.getUserName());
+                    
+
+                   // BussApptMgntSyst.appointments.add(selectedAppointment);
+                    //update DB
+                    Appointment.updateAppointmentInDb(selectedAppointment);     
+                }                                                                           
+            }
+            
+            else
+            {
+                checkForOverlap(newAppointment);   
+                //BussApptMgntSyst.appointments.add(newAppointment);
+                Appointment.addAppointmentToDb(newAppointment);                   
+            }
+            
+
+            //add or update the appointment in the DB 
+            
+            //clear form imputs
+            handleClearButton();  
+            loadAppointmentTable();
+        }
+        catch (IllegalArgumentException e)
+        {
+            Utils.displayAlertError("Appointment Error", e.getMessage());             
+        }
+        catch (SQLException e)
+        {
+            Utils.displayAlertError("SQL ERROR", e.getMessage());
+        }
         
         
-        int startHour = Integer.parseInt(chStartHour.getValue());
-        int startMinute = Integer.parseInt(chStartMinute.getValue());
-        String startPeriod = chStartAmPm.getValue();
+    }
+
+    private void checkForOverlap(Appointment appointment)
+    {
+        //verify appointment does not overlap with an existing appointment
+        BussApptMgntSyst.appointments.stream()
+                .forEach(x ->
+                {
+                    if ((appointment.getStart().isBefore(x.getEnd())) &&
+                            appointment.getEnd().isAfter(x.getStart()))
+                        throw new IllegalArgumentException("This appoinment overlaps with another appointment.");
+                });        
+    }
+
+    /**
+     * Converts user input into a LocalDateTime object. 
+     * @return ending date/time of the appointment.
+     */
+    private LocalDateTime getEndDateTime()
+    {
+        String strEndHour, strEndMinute, endPeriod;
+        LocalTime endTime = null;
+        LocalDate date = null;
         
-        int endHour = Integer.parseInt(chEndHour.getValue());
-        int endMinute = Integer.parseInt(chEndMinute.getValue());
-        String endPeriod = chEndAmPm.getValue();
+        try
+        {
+            //check data exists, if not throw exception so user can fix the inputs
+            if ((strEndHour=chEndHour.getValue()) == null || strEndHour.trim().isEmpty())
+                throw new IllegalArgumentException("You must select a valid end time.");
+            if ((strEndMinute=chEndMinute.getValue()) == null || strEndMinute.trim().isEmpty())
+                throw new IllegalArgumentException("You must select a valid end time.");
+            if ((endPeriod = chEndAmPm.getValue()) == null || endPeriod.isEmpty())
+                throw new IllegalArgumentException("You must select either AM or PM.");                    
+            if ((date = dtToDate.getValue()) == null)
+                throw new NumberFormatException("You must enter a valid end date.");
         
-        //parse values into time objects
-        LocalTime startTime = parseTimeField(startHour,startMinute,startPeriod);
-        LocalTime endTime = parseTimeField(endHour,endMinute,endPeriod);
+            //cast the strings to ints
+            int endHour = Integer.parseInt(strEndHour);
+            int endMinute = Integer.parseInt(strEndMinute);
+            
+            //get the local time representation
+            endTime = parseTimeField(endHour,endMinute,endPeriod);
+        }
+        catch (NumberFormatException e)
+        {
+            Utils.displayAlertError("DateTime Error", e.getMessage());
+        }
+        catch (IllegalArgumentException e)
+        {
+            Utils.displayAlertError("DateTime Error", e.getMessage());
+        }
+             
+        return LocalDateTime.of(date, endTime);
+    }
+
+    /**
+     * Converts user input into a LocalDateTime object. 
+     * @return starting date/time of the appointment
+     */
+    private LocalDateTime getStartDateTime()
+    {
+        String strStartHour, strStartMinute, startPeriod;
+        LocalTime startTime = null;
+        LocalDate date = null;        
         
-        //create a new appointment object
-        Appointment apt = new Appointment();
-        apt.setAppointmentId(2);
-        apt.setCustomerId(Customer.getCustomerId(cmbCustomer.getSelectionModel().getSelectedItem().toString()));
-        apt.setTitle(txtTitle.getText());
-        apt.setDescription(txtNotes.getText());
-        apt.setStart(LocalDateTime.of(dtFromDate.getValue(), startTime));
-        apt.setEnd(LocalDateTime.of(dtToDate.getValue(), endTime));
+        try
+        {
+            //check data exists, if not throw exception so user can fix the inputs
+            if ((strStartHour=chStartHour.getValue()) == null || strStartHour.trim().isEmpty())
+                throw new IllegalArgumentException("You must select a valid start time.");
+            if ((strStartMinute=chStartMinute.getValue()) == null || strStartMinute.trim().isEmpty())
+                throw new IllegalArgumentException("You must select a valid start time.");
+            if ((startPeriod = chStartAmPm.getValue()) == null || startPeriod.isEmpty())
+                throw new IllegalArgumentException("You must select either AM or PM.");                    
+            if ((date = dtFromDate.getValue()) == null)
+                throw new NumberFormatException("You must enter a valid start date.");
+            
+            //cast the strings to ints
+            int startHour = Integer.parseInt(strStartHour);
+            int startMinute = Integer.parseInt(strStartMinute);
+            
+            //get the local time representation
+            startTime = parseTimeField(startHour,startMinute,startPeriod);                      
+        }
+        catch (NumberFormatException e)
+        {
+            Utils.displayAlertError("DateTime Error", e.getMessage());
+        }
+        catch (IllegalArgumentException e)
+        {
+            Utils.displayAlertError("DateTime Error", e.getMessage());
+        }
         
-        
-        //add or update the appointment in the appointments collection
-        BussApptMgntSyst.appointments.add(apt);
-        //add or update the appointment in the DB 
-        Appointment.addAppointmentToDb(apt);
-        
+        return LocalDateTime.of(date, startTime);          
     }
     
     private void handleCloseButton()
@@ -136,16 +341,38 @@ public class ScheduleViewController implements Initializable
     private void handleDeleteButton()
     {
         //Confirm delete request
-        //Delete current appointment from DB and ObservableList<Appointment>
+        Appointment apt = tblCalendar.getSelectionModel().getSelectedItem();
+        //int aptId = apt.getAppointmentId();
+        //call delete query
+        Appointment.removeAppointment(apt);
+        handleClearButton();
+        //remove for collection in memory
+       // BussApptMgntSyst.appointments.remove(apt);
     }
     
-    private LocalTime parseTimeField(int hour, int minute, String period)
+    /**
+     * Converts int hour and int minute inputs into a local time object using
+     * accounting for AM/PM.
+     * @param hour
+     * @param minute
+     * @param period
+     * @return 
+     */
+    public LocalTime parseTimeField(int hour, int minute, String period)
     {
-        if (period == "PM")
-            hour += 12;
-        return LocalTime.of(hour, minute);
+        if (period.equals("AM") && hour == 12)
+            return LocalTime.of(hour - 12, minute);
+        else if (period.equals("AM"))
+            return LocalTime.of(hour, minute);
+        else if (period.equals("PM") && hour == 12)
+            return LocalTime.of(hour, minute);
+        else if (period.equals("PM"))
+            return LocalTime.of(hour + 12, minute);
+        else
+            return null;
     }
-         
+     
+    
     private ObservableList<String> setCustComboBox()
     {
         ObservableList<String> tmp = FXCollections.observableArrayList();
@@ -159,12 +386,14 @@ public class ScheduleViewController implements Initializable
         return tmp.sorted();
     }
     
+    
+    /**
+     * 
+     */
     private void loadCustomers ()
-    {
-        Customer customer = new Customer();
-        
+    {       
         if (BussApptMgntSyst.customers.isEmpty())
-            BussApptMgntSyst.customers = customer.getCustomers();        
+            BussApptMgntSyst.customers = Customer.getCustomers();        
     }
 
     /**
@@ -187,16 +416,17 @@ public class ScheduleViewController implements Initializable
         
         chStartHour.setItems(startHours.sorted());        
         chStartMinute.setItems(startMinutes.sorted());
-        chStartAmPm.setItems(startAmPm);
+        chStartAmPm.setItems(startAmPm.sorted());
         
         //assign values to End time dropdowns 
+//        IntStream.rangeClosed(1, 12).forEach(x -> endHours.add(0, String.format("%02d", x)));
         IntStream.rangeClosed(1, 12).boxed().forEach(x -> endHours.add(0, String.format("%02d", x)));
         IntStream.rangeClosed(0, 59).boxed().forEach(x -> endMinutes.add(0, String.format("%02d", x)));
         endAmPm.add("AM");
         endAmPm.add("PM");
-        chEndHour.setItems(startHours.sorted());        
-        chEndMinute.setItems(startMinutes.sorted());
-        chEndAmPm.setItems(endAmPm);        
+        chEndHour.setItems(endHours.sorted());        
+        chEndMinute.setItems(endMinutes.sorted());
+        chEndAmPm.setItems(endAmPm.sorted());        
 
         //set maximum visable rows
         chStartHour.setVisibleRowCount(10);
@@ -204,6 +434,13 @@ public class ScheduleViewController implements Initializable
         chEndHour.setVisibleRowCount(10);
         chEndMinute.setVisibleRowCount(10);
         
+        //set default values 
+        chStartHour.getSelectionModel().select(11); //select '12'
+        chStartMinute.getSelectionModel().select(0); //select '00'
+        chStartAmPm.getSelectionModel().selectFirst(); //select 'AM'
+        chEndHour.getSelectionModel().select(11); //select '12'
+        chEndMinute.getSelectionModel().select(0); //select '00'
+        chEndAmPm.getSelectionModel().selectFirst(); //select 'AM'
     }
 
     /**
@@ -214,7 +451,11 @@ public class ScheduleViewController implements Initializable
         Appointment apt = new Appointment();
         final DateTimeFormatter formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT);                     
         
-        tblCalendar.setItems(BussApptMgntSyst.appointments);
+        //TODO: filter table to show only those appointments for the current user using lambda
+        tblCalendar.setItems(BussApptMgntSyst.appointments.stream()
+            .filter(a -> a.getUserName().equals(UserClass.getInstance().getUserName()))
+            .collect(Collectors.collectingAndThen(toList(), l -> FXCollections.observableArrayList(l))));
+        
         
         //get and format start date/time
         colStartDate.setCellValueFactory(x -> x.getValue().startProperty());
@@ -271,10 +512,88 @@ public class ScheduleViewController implements Initializable
             }
         });
         
-        colTitle.setCellValueFactory(x -> x.getValue().titleProperty());
+        colAppointmentType.setCellValueFactory(x -> x.getValue().appointmentTypeProperty());
+        
+        
+    }
+
+    /**
+     * Populates the appointment form fields based on the currently selected
+     * appointment in the appointment table.
+     * @param selectedAppointment 
+     */
+    private void populateAppointmentFields()
+    {
+        Object[] startTime = parseTime(selectedAppointment.getStart().toLocalTime());
+        Object[] endTime = parseTime(selectedAppointment.getEnd().toLocalTime());
+        
+        //TODO: check fields are empty before loading fields, if not, throw exception
+        //chAptType.setValue(null);
+        chAppointmentType.setValue(selectedAppointment.getAppointmentType());
+        //chAptType.setText(selectedAppointment.getTitle());
+        //set start date & time
+        dtFromDate.setValue(selectedAppointment.getStart().toLocalDate());
+        chStartHour.setValue(String.format("%02d",(Integer)startTime[0]));
+        chStartMinute.setValue(String.format("%02d",(Integer)startTime[1]));
+        chStartAmPm.setValue((String)startTime[2]);        
+        //set end date & time
+        dtToDate.setValue(selectedAppointment.getEnd().toLocalDate());
+        chEndHour.setValue(String.format("%02d", (Integer)endTime[0]));
+        chEndMinute.setValue(String.format("%02d", (Integer)endTime[1]));
+        chEndAmPm.setValue((String)endTime[2]);
+       
+        cmbCustomer.setValue(Customer.getCustomerNameFromId(selectedAppointment.getCustomerId()));
+        txtNotes.setText(selectedAppointment.getDescription());
     }
     
-    
+    /**
+     * Parses a LocalTime object into hours, minutes, and AM/PM, returning an 
+     * Object array.
+     * @param localTime
+     * @return 
+     */
+    private Object[] parseTime(LocalTime localTime)
+    {
+        int hour, minute;
+        String period = "AM";
+        Object[] parsedResult = new Object[3];
+        
+        if ((hour = localTime.getHour())>12)
+        {
+            hour = hour-12;
+            period = "PM";
+        }
+        
+        if (hour == 12)
+            period = "PM";
+        
+        if (hour == 0)
+        {
+            hour = 12;
+            period = "AM";
+        }
+        
+        minute = localTime.getMinute();               
+                
+        parsedResult[0] = hour;
+        parsedResult[1] = minute;
+        parsedResult[2] = period;
+        
+        return parsedResult;
+    }
+
+    private void handleClearButton()
+    {
+        tblCalendar.getSelectionModel().clearSelection();
+        loadTimeFields();
+        chAppointmentType.setValue(null);
+        //chAptType.setText(null);
+        txtNotes.setText(null);
+        dtFromDate.setValue(null);
+        dtToDate.setValue(null);                
+        cmbCustomer.getSelectionModel().clearSelection();
+        selectedAppointment = null;
+    }
     
     
 
