@@ -316,4 +316,10 @@ public class Customer //extends Address
         return cust.getCustName();
     }
     
+    
+    public static void loadCustomers ()
+    {       
+        if (BussApptMgntSyst.customers.isEmpty())
+            BussApptMgntSyst.customers = Customer.getCustomers();        
+    }
 }

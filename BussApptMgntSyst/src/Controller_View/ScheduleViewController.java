@@ -91,7 +91,7 @@ public class ScheduleViewController implements Initializable
     public void initialize(URL url, ResourceBundle rb)
     {
         //load data elements
-        loadCustomers();
+        Customer.loadCustomers();
         loadTimeFields();
         setAppointmentOptions();
         loadAppointmentTable();
@@ -148,9 +148,10 @@ public class ScheduleViewController implements Initializable
                         
             if((endDateTime = getEndDateTime())==null)
                 throw new IllegalArgumentException("Please pick a valid end date/time.");
-                        
+                    
+            //TODO: change end time back to 17 on line 155; delete this row
             if ((startDateTime.toLocalTime().isBefore(LocalTime.of(8, 0))) ||
-                    endDateTime.toLocalTime().isAfter(LocalTime.of(17,0)))
+                    endDateTime.toLocalTime().isAfter(LocalTime.of(19,0)))
                 throw new IllegalArgumentException("Appointments must be maded with the business hours of 8:00AM and 5:00PM.");
                         
             if ((aptType = chAppointmentType.getValue().toString())==null || aptType.trim().isEmpty())
@@ -390,11 +391,7 @@ public class ScheduleViewController implements Initializable
     /**
      * 
      */
-    private void loadCustomers ()
-    {       
-        if (BussApptMgntSyst.customers.isEmpty())
-            BussApptMgntSyst.customers = Customer.getCustomers();        
-    }
+    
 
     /**
      * Loads the hour, minute and am/pm drop down boxes.

@@ -10,6 +10,9 @@ import Model.BussApptMgntSyst;
 import static Model.BussApptMgntSyst.appointments;
 import Model.Customer;
 import Model.AppointmentFilter;
+import Model.AppointmentReminder;
+import Model.UserClass;
+import Model.Utils;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.DayOfWeek;
@@ -21,6 +24,7 @@ import java.util.Comparator;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -81,6 +85,16 @@ public class MainViewController implements Initializable
         setControlText();
         loadAppointments(); //initilizes the appointments collection
         loadAppointmentTable(); //loads the appoinment table
+        Customer.loadCustomers();
+        
+        Platform.runLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                checkForUpcommingAppointments();
+            }
+        });
         
         //setDefaultToggles
         radByMonth.setToggleGroup(group);
@@ -110,15 +124,15 @@ public class MainViewController implements Initializable
         {
             
             RadioButton selectedRadioButton = (RadioButton) group.getSelectedToggle();
-            String value = selectedRadioButton.getText();
+            String value = selectedRadioButton.getId();
             
-            if (value.equals("Monthly"))
+            if (value.equals("radByMonth"))
             {
                 filter.setByMonth(true);
                 filter.setByWeek(false);                            
             }
             
-            else if (value.equals("Weekly"))
+            else if (value.equals("radByWeek"))
             {
                 filter.setByMonth(false);
                 filter.setByWeek(true); 
@@ -140,6 +154,8 @@ public class MainViewController implements Initializable
             }                                        
             
             filterAppoinmentTable(filter);
+            
+            
         });  
         
         btnPrevPeriod.setOnAction(x -> 
@@ -181,7 +197,8 @@ public class MainViewController implements Initializable
                         
             filterAppoinmentTable(filter);
         });
-    
+            
+       
     }    
 
     private void setControlText()
@@ -289,8 +306,6 @@ public class MainViewController implements Initializable
         filter.setByMonth(radByMonth.selectedProperty().getValue());
         filter.setByWeek((radByWeek.selectedProperty().getValue()));
         filter.setCurentDatePosition(LocalDate.now());
-//        filter.setCurrentMonthPosition(startPosition);
-//        filter.setCurrentWeekPosition(startPosition);
     }
     
     private void filterAppoinmentTable(AppointmentFilter filter)            
@@ -316,7 +331,8 @@ public class MainViewController implements Initializable
                                 ,x.getDescription()
                                 ,x.getStart()
                                 ,x.getEnd()
-                                ,x.getUserName()));
+                                ,x.getUserName()
+                                ,String.valueOf(x.getReminded())));
                 });
                         
             selectedTimePeriod.setText(currentDate.getMonth().toString() + " " + currentDate.getYear());
@@ -338,7 +354,8 @@ public class MainViewController implements Initializable
                             ,x.getDescription()
                             ,x.getStart()
                             ,x.getEnd()
-                            ,x.getUserName()));
+                            ,x.getUserName()
+                            ,String.valueOf(x.getReminded())));
                 });
             
             
@@ -354,6 +371,33 @@ public class MainViewController implements Initializable
         
     }
     
+    
+    /**
+     * Checks up-coming appointments for the currently logged in user. If one
+     * or more appointments are found, the user will be presented with pop-up
+     * reminder with name of the customer and the start time. Once the user
+     * clears the pop-up message, the appointment is marked as having been 
+     * reminded and will no longer display to the user.
+     */
+    private void checkForUpcommingAppointments()
+    {
+        AppointmentReminder.getUpcomingAppointments(UserClass.getInstance());
+        
+        AppointmentReminder.upcommingAppoitments.stream()
+                .forEach(x -> 
+                {
+                    if (!x.getReminded())
+                    {
+                        boolean response = Utils.displayInformational("APPOINTMENT REMINDER", "You have an upcomming "
+                                + "appointment at " + String.valueOf(x.getStart()
+                                        .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)))
+                                + "with "+ Customer.getCustomerNameFromId(x.getCustomerId()) + ".");
+                        
+                        x.updateReminded(response);                        
+                    }
+                });
+        
+    }
 }
 
 

@@ -143,7 +143,17 @@ Solution:
 Requirement G:
     Use lambda expressions to create standard pop-up and alert messages.
 
+Solution:
+    The following methods in the create pop-up alerts:
+        * Utils.displayAlertConfirmation()
+        * Utils.displayInformational()
+        * Utils.displayAlertError()
+        * CustomerControllerView.handleNewLocation();
 
+    In addition, the following methods use lambdas in calling the pop-up alerts:
+        *
+
+    
 
 --------------------------------------------------------------------------------
 
@@ -151,8 +161,16 @@ Requirement H:
     Write code to provide reminders and alerts 15 minutes in advance of an 
     appointment, based on the user’s log-in.
 
-
-
+Solution:
+    The AppointmentReminder class has a single method, getUpcomingAppointments()
+    which creates a list of appointments filtered first by user, then by those 
+    start times that fall within 15 minutes of the current time. The method is
+    called from the MainViewController class using a new thread. This allows
+    for the MainView to be fully initialized before the method is called.
+    
+    If an appointment if found, a pop-up is presented to the user. Once the
+    pop-up is cleared, the appointment is marked as "reminded" so that the user
+    is not repeatedly reminded for the same appointment.
 --------------------------------------------------------------------------------
 
 Requirement I:

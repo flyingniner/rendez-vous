@@ -12,8 +12,11 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.logging.Level;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -34,11 +37,12 @@ public class Appointment
     private ObjectProperty<LocalDateTime> start = new SimpleObjectProperty();
     private ObjectProperty<LocalDateTime> end = new SimpleObjectProperty();
     private StringProperty userName = new SimpleStringProperty();
+    private BooleanProperty reminded = new SimpleBooleanProperty();
     
     public Appointment() {};
     
     public Appointment(int appiontmentId, int customerId, String appointmentType, String notes, 
-            LocalDateTime start, LocalDateTime end, String userName)
+            LocalDateTime start, LocalDateTime end, String userName, String reminded)
     {
         setAppointmentId(appiontmentId);
         setCustomerId(customerId);
@@ -47,6 +51,7 @@ public class Appointment
         setStart(start);
         setEnd(end);
         setUserName(userName);
+        setReminded(Boolean.valueOf(reminded));
     }
 
     public static ObservableList<Appointment> getAppointments() throws SQLException
@@ -74,7 +79,8 @@ public class Appointment
                         rs.getString("description"), 
                         Utils.convertUtcToLocalDateTime(rs.getTimestamp("start")),
                         Utils.convertUtcToLocalDateTime(rs.getTimestamp("end")),
-                        rs.getString("contact")));
+                        rs.getString("contact"),
+                        rs.getString("url")));
             }
            
         }
@@ -107,7 +113,8 @@ public class Appointment
                 + "\t,?\n"                      //9 createdBy
                 + "\t,?\n"                      //10 lastUpdate
                 + "\t,?\n"                      //11 latUpdatedBy
-                + "\t,?,?);";                 //12-13 location,url
+                + "\t,?,"                       //12 location
+                + "\t,?);";                     //13 url aka "reminded"
                    
         SqlHelperClass sql = new SqlHelperClass();
 
@@ -127,7 +134,7 @@ public class Appointment
         stmt.setTimestamp(10, Utils.convertLocaLDateTimeToUtc(LocalDateTime.now())); //last modified date
         stmt.setString(11, userName);
         stmt.setString(12, "");
-        stmt.setString(13, "");
+        stmt.setString(13, "false");
 
         int result = sql.executeUpdateQuery(stmt);
         if (result == 0)
@@ -147,8 +154,7 @@ public class Appointment
                 + ",lastUpdate = ?"            //7
                 + ",lastUpdateBy = ? "         //8
                 + "WHERE appointmentId = ?;";     //9
-                
-                //+ "\t(appointmentId = ? \n"          //1
+
                    
         SqlHelperClass sql = new SqlHelperClass();
         try
@@ -205,8 +211,7 @@ public class Appointment
     
     public IntegerProperty appointmentIdProperty() { return appointmentId; }
     public void setAppointmentId(int appointmentId) { this.appointmentId.set(appointmentId); }
-    public int getAppointmentId() { return this.appointmentId.get(); }
-    //public static int getAppointmentId(Appointment apt) {return apt.getAppointmentId();}
+    public int getAppointmentId() { return this.appointmentId.get(); }    
 
     public IntegerProperty customerIdProperty() { return customerId; }
     public void setCustomerId(int customer) { this.customerId.set(customer); }
@@ -231,6 +236,30 @@ public class Appointment
     public StringProperty userNameProperty() { return userName; }
     public void setUserName(String userName) { this.userName.set(userName); }
     public String getUserName() { return this.userName.get(); }
+    
+    public BooleanProperty remindedProperty() { return reminded; }
+    public void setReminded(boolean reminded) { this.reminded.set(reminded); }
+    public boolean getReminded() { return this.reminded.get(); }
+    
+    public void updateReminded(boolean reminded)
+    {
+        String queryString = "UPDATE appointment SET url = ? WHERE appointmentId = ?;";
+        
+        try
+        {
+          SqlHelperClass sql = new SqlHelperClass();
+          PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
+          
+          stmt.setString(1, String.valueOf(reminded));
+          stmt.setInt(2, this.getAppointmentId());
+          sql.executeUpdateQuery(stmt);
+        } 
+        catch (SQLException e)
+        {
+            BussApptMgntSyst.logger.log(Level.SEVERE, e.getMessage());
+        }        
+    }
+    
     
     public int getNextAppointmentId()
     {

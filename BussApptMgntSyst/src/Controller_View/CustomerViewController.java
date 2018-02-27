@@ -456,8 +456,8 @@ public class CustomerViewController implements Initializable
     private void handleNewLocation()
     {
         Dialog<Pair<String,String>> dialog = new Dialog<>();
-        dialog.setHeaderText("New Location");
-        dialog.setContentText("Add a new location: ");                
+        dialog.setHeaderText(resource.getString("newLocation"));
+        dialog.setContentText(resource.getString("newLocationContextText")); 
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         final Button okButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
         okButton.setDisable(true);
@@ -469,7 +469,7 @@ public class CustomerViewController implements Initializable
 
         //form controls
         TextField cityName = new TextField();
-        cityName.setPromptText("city name");                        
+        cityName.setPromptText(resource.getString("cityName"));            
         ComboBox<String> countrySelect = new ComboBox<String>();
         countrySelect.setItems((ObservableList<String>)cmbCountry.getItems());
         Hyperlink addNewCountry = new Hyperlink("Add new country");
@@ -546,15 +546,16 @@ public class CustomerViewController implements Initializable
                 handleNewLocation();
             }            
         });  
-        
-        
     }
 
+    /**
+     * Adds a new country to the collection. 
+     */
     private void handleAddCountry()
     {
         TextInputDialog diag = new TextInputDialog();
-        diag.setContentText("Add new country name: ");
-        diag.setHeaderText("Add Country");
+        diag.setContentText(resource.getString("addCountryContextText"));
+        diag.setHeaderText(resource.getString("addCountry"));
        
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -562,9 +563,9 @@ public class CustomerViewController implements Initializable
         grid.setPadding(new Insets(20, 150, 10, 10));
 
         TextField countryName = new TextField();
-        countryName.setPromptText("Country name");
+        countryName.setPromptText(resource.getString("addCountryName"));
         
-        grid.add(new Label("Enter Country name: "), 0, 0);
+        grid.add(new Label(resource.getString("countryNameLabel")), 0, 0);
         grid.add(countryName, 1, 0);
         diag.getDialogPane().setContent(grid);
                 

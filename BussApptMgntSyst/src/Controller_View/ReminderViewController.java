@@ -5,6 +5,8 @@
  */
 package Controller_View;
 
+import Model.Appointment;
+import Model.UserClass;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -22,10 +24,20 @@ public class ReminderViewController implements Initializable
     @FXML private Label lblMessage;
     @FXML private Button btnViewAppt;
     @FXML private Button btnClose;
+    UserClass user;
+    
     
     @Override
     public void initialize(URL url, ResourceBundle rb)
     {
-        // TODO
+        user = UserClass.getInstance();// TODO
+        
     }  
+    
+    private void issueReminderAlert(Appointment appointment)
+    {
+        
+    }
+    
+    
 }

@@ -70,7 +70,7 @@ public enum FxmlView
         @Override
         public String getFxmlFile()
         {
-            return "/Controller_View/ReportsView.fxml";
+            return "/Controller_View/ReportView.fxml";
         }
     };
     

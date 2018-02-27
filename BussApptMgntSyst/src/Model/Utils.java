@@ -46,11 +46,32 @@ public class Utils
      * Displays a Confirmation Alert box to the user.
      * @param headerText 
      * @param contentText 
+     * @return 
      */
     public static boolean displayAlertConfirmation(String headerText, String contentText)
     {
         
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setHeaderText(headerText);
+                alert.setContentText(contentText);            
+
+               alert.showAndWait()
+                    .filter(response -> response == ButtonType.OK)
+                    .ifPresent(x -> alertResponse = true);    
+               
+        return alertResponse;
+    }
+    
+    /**
+     * Displays an informational pop-up message to the user.
+     * @param headerText
+     * @param contentText
+     * @return 
+     */
+    public static boolean displayInformational(String headerText, String contentText)
+    {
+        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setHeaderText(headerText);
                 alert.setContentText(contentText);            
 

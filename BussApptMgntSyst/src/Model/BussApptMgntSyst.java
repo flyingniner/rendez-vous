@@ -41,8 +41,8 @@ public class BussApptMgntSyst extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
-        locale = Locale.getDefault();               
-        //locale = new Locale("es","VE");        
+        //locale = Locale.getDefault();               
+        locale = new Locale("es","VE");        
                 
         
         ResourceBundle rb = ResourceBundle.getBundle("Model.BAMS", locale);

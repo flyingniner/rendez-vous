@@ -8,6 +8,9 @@ package Model;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  *
@@ -85,5 +88,30 @@ public class UserClass
     {   
         return "[userID: " + getInstance().getUserID() + ", userName: " + 
                 getInstance().getUserName() + "]";
+    }
+    
+    public static ObservableList<String> getAllUsers()
+    {
+        String queryString = "SELECT userName FROM user;";
+        ObservableList<String> results = FXCollections.observableArrayList();
+        try
+        {
+          SqlHelperClass sql = new SqlHelperClass();
+          PreparedStatement stmt = SqlHelperClass.getConnection().prepareStatement(queryString);
+          
+          ResultSet rs = sql.executeQuery(stmt);
+          
+          while (rs.next())
+          {
+              results.add(rs.getString("userName"));
+          }
+          
+          return results;
+          
+        } catch (SQLException e)
+        {
+            BussApptMgntSyst.logger.log(Level.SEVERE, e.getMessage());
+            return null;
+        }
     }
 }

@@ -5,6 +5,8 @@
  */
 package Controller_View;
 
+import Model.Appointment;
+import Model.AppointmentReminder;
 import Model.BussApptMgntSyst;
 import Model.UserClass;
 //import Model.WindowEnum;
@@ -13,6 +15,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
@@ -127,7 +130,7 @@ public class LoginViewController implements Initializable
         
         if (UserClass.verifyUser(user, userName, password.getText().hashCode()))                    
         {
-            
+
             logger.log(Level.INFO, "Login Successful: " + user.toString());
             
             sceneMgr.displayScene(root, child, "Main");   
