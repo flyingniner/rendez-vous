@@ -1,22 +1,56 @@
-Feb 26, 2018 9:53:13 PM Model.BussApptMgntSyst main
+Feb 27, 2018 8:04:13 PM Model.BussApptMgntSyst main
 INFO: Application launch
-Feb 26, 2018 9:53:16 PM Controller_View.LoginViewController login
-INFO: Login Successful: [userID: 2, userName: test]
-Feb 26, 2018 9:53:27 PM Controller_View.RootViewController lambda$null$1
-INFO: Logout Successful: [userID: 2, userName: test]
-Feb 26, 2018 9:54:27 PM Model.BussApptMgntSyst main
+Feb 27, 2018 8:04:17 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 8:05:26 PM Model.SqlHelperClass executeQuery
+SEVERE: Subquery returns more than 1 row
+Feb 27, 2018 8:06:01 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 8:06:46 PM Model.BussApptMgntSyst main
 INFO: Application launch
-Feb 26, 2018 9:54:30 PM Controller_View.LoginViewController login
-INFO: Login Successful: [userID: 2, userName: test]
-Feb 26, 2018 9:57:17 PM Model.BussApptMgntSyst main
+Feb 27, 2018 8:06:49 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 8:11:43 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 8:12:23 PM Model.BussApptMgntSyst main
 INFO: Application launch
-Feb 26, 2018 9:57:20 PM Controller_View.LoginViewController login
-INFO: Login Successful: [userID: 2, userName: test]
-Feb 26, 2018 10:02:27 PM Model.BussApptMgntSyst main
+Feb 27, 2018 8:12:28 PM Model.BussApptMgntSyst main
 INFO: Application launch
-Feb 26, 2018 10:02:30 PM Controller_View.LoginViewController login
-INFO: Login Successful: [userID: 2, userName: test]
-Feb 26, 2018 10:04:03 PM Model.BussApptMgntSyst main
+Feb 27, 2018 8:12:31 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 9:05:15 PM Model.BussApptMgntSyst main
 INFO: Application launch
-Feb 26, 2018 10:04:06 PM Controller_View.LoginViewController login
-INFO: Login Successful: [userID: 2, userName: test]
+Feb 27, 2018 9:05:20 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 9:36:19 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 27, 2018 9:36:22 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 9:38:09 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 9:38:24 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 27, 2018 9:38:27 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 9:51:00 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 27, 2018 9:51:03 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 9:54:30 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 10:02:10 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 27, 2018 10:02:14 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 10:02:44 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 10:04:18 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 27, 2018 10:04:21 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 10:11:26 PM Model.BussApptMgntSyst main
+INFO: Application launch
+Feb 27, 2018 10:11:30 PM Controller_View.LoginViewController login
+INFO: Login Successful: [userID: 2, userName: Chip]
+Feb 27, 2018 10:15:28 PM Controller_View.RootViewController lambda$null$1
+INFO: Logout Successful: [userID: 2, userName: Chip]
